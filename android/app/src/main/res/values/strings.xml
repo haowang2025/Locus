@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">记忆宫殿（GLB）</string>
+    <string name="title_activity_main">记忆宫殿（GLB）</string>
+    <string name="package_name">com.memorypalace.mvp.glb</string>
+    <string name="custom_url_scheme">com.memorypalace.mvp.glb</string>
+</resources>
