@@ -1,0 +1,40 @@
+/* XHS mobile map orientation handling.
+   Prefer a real landscape lock via Screen Orientation API; when the host rejects it,
+   rotate only the full-screen map surface instead of showing a blocking overlay. */
+
+.page--full {
+  overscroll-behavior: none;
+}
+
+@media (pointer: coarse) and (orientation: portrait) {
+  .page--full {
+    position: fixed;
+    top: 0;
+    left: 100vw;
+    width: 100vh;
+    height: 100vw;
+    min-height: 0;
+    transform: rotate(90deg);
+    transform-origin: 0 0;
+    overflow: hidden;
+  }
+
+  .page--full .map-root {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* In the rotated fallback, landscape-left maps to the phone's physical top edge.
+     Pull the joystick inward so the XHS message/status bar does not cover it. */
+  .page--full .joystick {
+    left: calc(46px + env(safe-area-inset-left));
+    bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (pointer: coarse) and (orientation: landscape) {
+  .page--full .joystick {
+    left: calc(38px + env(safe-area-inset-left));
+    bottom: calc(18px + env(safe-area-inset-bottom));
+  }
+}
