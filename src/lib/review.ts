@@ -7,9 +7,9 @@ export function isCardFilled(card: CardRecord) {
 }
 
 export function confidenceLabel(confidence: Confidence) {
-  if (confidence === 0) return '没记住'
-  if (confidence === 1) return '模糊'
-  return '记住了'
+  if (confidence === 0) return '忘了'
+  if (confidence === 1) return '想了一会'
+  return '秒答'
 }
 
 function clampDate(date: Date) {
@@ -59,18 +59,24 @@ function reviewPriorityKey(card: CardRecord, now: Date) {
   return {
     isNew: isNew ? 0 : 1,
     confidence,
-    // Higher overdue first; sort asc later by negating.
     overdue: -overdueMs,
     lastReviewedAt: lastMs,
     routeIndex: card.routeIndex,
   }
 }
 
-export function buildReviewQueue(cards: CardRecord[], now: Date, maxCount: number) {
+export function buildReviewQueue(
+  cards: CardRecord[],
+  now: Date,
+  maxCount: number,
+  options?: { fallbackToFilled?: boolean },
+) {
   const filled = cards.filter(isCardFilled)
   const due = filled.filter((c) => isCardDue(c, now))
 
-  const candidates = due.length > 0 ? due : filled
+  // “今日复习” should contain due cards only. A palace-specific free-practice
+  // session may explicitly opt in to falling back to all filled cards.
+  const candidates = due.length > 0 ? due : options?.fallbackToFilled ? filled : []
 
   const sorted = candidates
     .slice()
@@ -118,13 +124,9 @@ function palaceSortKey(stats: PalaceReviewStats, palace: PalaceRecord) {
   const lastReviewedAt = parseIso(stats.lastReviewedAt ?? undefined)?.getTime() ?? 0
   const updatedAt = parseIso(palace.updatedAt)?.getTime() ?? 0
   return {
-    // Due palaces first.
     hasDue: stats.dueCount > 0 ? 0 : 1,
-    // More due first.
     dueCount: -stats.dueCount,
-    // Less recently reviewed first (older timestamp).
     lastReviewedAt,
-    // Then least recently updated first.
     updatedAt,
   }
 }
