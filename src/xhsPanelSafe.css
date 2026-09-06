@@ -1,0 +1,59 @@
+.train-panel {
+  top: calc(18px + env(safe-area-inset-top)) !important;
+  bottom: auto !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: min(680px, 68vw) !important;
+  max-height: min(56dvh, 430px) !important;
+  border-radius: 18px !important;
+}
+
+.prompt-hud {
+  top: calc(14px + env(safe-area-inset-top)) !important;
+  bottom: auto !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: min(500px, 58vw) !important;
+  max-width: calc(100vw - 220px) !important;
+}
+
+.map-root:has(.train-panel--guided) .joystick,
+.map-root:has(.train-panel--guided) .hud-right {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .train-panel {
+    top: calc(10px + env(safe-area-inset-top)) !important;
+    width: min(520px, 62vw) !important;
+    max-height: calc(100dvh - 118px) !important;
+  }
+
+  .train-panel__header {
+    padding: 7px 10px !important;
+  }
+
+  .train-panel__body {
+    padding: 8px 10px !important;
+    gap: 7px !important;
+  }
+
+  .train-panel__footer {
+    padding: 7px 9px !important;
+    gap: 6px !important;
+  }
+
+  .train-panel__footer > .btn,
+  .train-panel__footer > .train-rate {
+    min-height: 40px !important;
+    font-size: 13px !important;
+  }
+
+  .prompt-hud {
+    top: calc(10px + env(safe-area-inset-top)) !important;
+    width: min(460px, 54vw) !important;
+    max-width: calc(100vw - 250px) !important;
+  }
+}
