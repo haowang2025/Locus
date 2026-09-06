@@ -2,8 +2,12 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
 import './index.css'
+import './xhs-landscape.css'
 import { seedTengwangDemoIfEmpty } from './lib/tengwangDemo'
+import { installXhsLandscapePreference } from './lib/xhsLandscape'
 import { router } from './router.tsx'
+
+installXhsLandscapePreference()
 
 function renderApp() {
   createRoot(document.getElementById('root')!).render(
