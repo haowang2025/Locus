@@ -35,7 +35,10 @@ export default function PalaceReviewStartPage() {
         const cards = await getCards(palaceId)
         if (!alive) return
         const now = new Date()
-        const { queue, filledCount } = buildReviewQueue(cards, now, 10)
+        // Palace-specific “继续背诵” is also a free-practice entry. If nothing
+        // is due, keep the route useful by practicing filled cards; Today Review
+        // deliberately does not use this fallback.
+        const { queue, filledCount } = buildReviewQueue(cards, now, 10, { fallbackToFilled: true })
         if (queue.length === 0) {
           if (filledCount === 0) {
             setError(`宫殿「${palace.title}」暂无可复习内容。请先导入或编辑卡片。`)
@@ -89,7 +92,7 @@ export default function PalaceReviewStartPage() {
     <div className="page">
       <header className="page__header">
         <h1 className="page__title">开始复习</h1>
-        <p className="hint">进入该宫殿的轻量复习队列。</p>
+        <p className="hint">正在进入引导背诵路线…</p>
       </header>
 
       <main className="page__body">
@@ -108,7 +111,7 @@ export default function PalaceReviewStartPage() {
             </p>
             <div className="row">
               <Link className="btn" to={`/palace/${palaceId}/map`}>
-                进入探索
+                自由探索
               </Link>
               <Link className="btn" to="/">
                 返回首页
@@ -120,4 +123,3 @@ export default function PalaceReviewStartPage() {
     </div>
   )
 }
-
