@@ -1,0 +1,7 @@
+/* XHS mini-tool overrides.
+   The host WebView can report a portrait-sized embedded viewport even when
+   the device is being used in landscape. Never block the 3D scene based on
+   viewport aspect ratio. */
+.rotate-overlay {
+  display: none !important;
+}
