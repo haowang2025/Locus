@@ -1,23 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { createPalace, deletePalace, getBlobs, getCards, listPalaces } from '../lib/db'
-import { importMpFileAsNewPalace } from '../lib/backupImport'
-import { buildMpFileV1 } from '../lib/mpalace'
+import { createPalace, deletePalace, getCards, listPalaces } from '../lib/db'
 import { LOCUS_COUNT } from '../lib/loci'
-import { exportFile } from '../lib/exportFile'
 import { computePalaceReviewStats, type PalaceReviewStats } from '../lib/review'
 import { getGlobalStreak } from '../lib/streak'
-import type { CardRecord, PalaceRecord, TemplateId } from '../lib/types'
+import type { CardRecord, PalaceRecord } from '../lib/types'
 
 function isFilled(card: CardRecord) {
   return Boolean(card.prompt.trim() || card.answer.trim() || card.note?.trim() || card.imageIds.length > 0 || card.modelId)
-}
-
-function templateLabel(templateId: TemplateId) {
-  if (templateId === 'dust2_blockout_v2') return 'Dust2 灰盒 v2'
-  if (templateId === 'dust2like_v1') return 'Dust2Like v1'
-  return templateId
 }
 
 export default function HomePage() {
@@ -34,39 +25,28 @@ export default function HomePage() {
     try {
       const list = await listPalaces()
       const now = new Date()
-
       const entries = await Promise.all(
-        list.map(async (p) => {
-          const cards = await getCards(p.id)
-          const filled = cards.filter(isFilled).length
-          const stats = computePalaceReviewStats(p.id, cards, now)
-          return { palace: p, filled, stats }
+        list.map(async (palace) => {
+          const cards = await getCards(palace.id)
+          return {
+            palace,
+            filled: cards.filter(isFilled).length,
+            stats: computePalaceReviewStats(palace.id, cards, now),
+          }
         }),
       )
 
-      const filledMap = new Map(entries.map((e) => [e.palace.id, e.filled] as const))
-      const statsMap = new Map(entries.map((e) => [e.palace.id, e.stats] as const))
-      const sortedPalaces = entries
-        .slice()
-        .sort((a, b) => {
-          // Due first.
-          const aDue = a.stats.dueCount > 0
-          const bDue = b.stats.dueCount > 0
-          if (aDue !== bDue) return aDue ? -1 : 1
-          // More due first.
-          if (a.stats.dueCount !== b.stats.dueCount) return b.stats.dueCount - a.stats.dueCount
-          // Older last-reviewed first.
-          const aLast = a.stats.lastReviewedAt ?? ''
-          const bLast = b.stats.lastReviewedAt ?? ''
-          if (aLast !== bLast) return aLast < bLast ? -1 : 1
-          // Fallback: most recently updated first.
-          return a.palace.updatedAt < b.palace.updatedAt ? 1 : -1
-        })
-        .map((e) => e.palace)
+      entries.sort((a, b) => {
+        const aDue = a.stats.dueCount > 0
+        const bDue = b.stats.dueCount > 0
+        if (aDue !== bDue) return aDue ? -1 : 1
+        if (a.stats.dueCount !== b.stats.dueCount) return b.stats.dueCount - a.stats.dueCount
+        return a.palace.updatedAt < b.palace.updatedAt ? 1 : -1
+      })
 
-      setPalaces(sortedPalaces)
-      setFilledByPalace(filledMap)
-      setReviewStatsByPalace(statsMap)
+      setPalaces(entries.map((entry) => entry.palace))
+      setFilledByPalace(new Map(entries.map((entry) => [entry.palace.id, entry.filled] as const)))
+      setReviewStatsByPalace(new Map(entries.map((entry) => [entry.palace.id, entry.stats] as const)))
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -78,17 +58,17 @@ export default function HomePage() {
     void reload()
   }, [])
 
-  const palaceCount = palaces.length
+  const continuePalace = useMemo(() => palaces.find((palace) => (filledByPalace.get(palace.id) ?? 0) > 0) ?? palaces[0], [palaces, filledByPalace])
 
   async function onCreate() {
-    const title = prompt('新建宫殿标题（可稍后修改）', `宫殿 ${palaceCount + 1}`)
+    const title = prompt('新建宫殿标题', `宫殿 ${palaces.length + 1}`)
     if (title === null) return
     setBusy('新建中…')
     setError(null)
     try {
       const created = await createPalace(title || '未命名宫殿')
       await reload()
-      navigate(`/palace/${created.id}/import`)
+      navigate(`/palace/${created.id}/quick-import`)
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e))
     } finally {
@@ -97,8 +77,7 @@ export default function HomePage() {
   }
 
   async function onDelete(palace: PalaceRecord) {
-    const ok = confirm(`删除宫殿「${palace.title}」？其卡片将被删除（图片文件不会立刻清理）。`)
-    if (!ok) return
+    if (!confirm(`删除宫殿「${palace.title}」？`)) return
     setBusy('删除中…')
     setError(null)
     try {
@@ -111,138 +90,76 @@ export default function HomePage() {
     }
   }
 
-  async function onExport(palace: PalaceRecord) {
-    setBusy('导出中…')
-    setError(null)
-    try {
-      const cards = await getCards(palace.id)
-      const blobIds = Array.from(new Set(cards.flatMap((c) => (c.modelId ? [...c.imageIds, c.modelId] : c.imageIds))))
-      const blobs = await getBlobs(blobIds)
-      const { fileName, blob } = await buildMpFileV1({ palace, cards, blobs })
-      await exportFile({ fileName, blob, dialogTitle: '导出 .mpalace' })
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
-    } finally {
-      setBusy(null)
-    }
-  }
-
-  async function onRestoreFromBackup(file: File) {
-    setBusy('恢复中…')
-    setError(null)
-    try {
-      const ok = confirm('将从备份创建一个新宫殿并导入卡片与图片，确定？')
-      if (!ok) return
-
-      const created = await importMpFileAsNewPalace(file)
-      await reload()
-      navigate(`/palace/${created.id}/map`)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
-    } finally {
-      setBusy(null)
-    }
-  }
+  const streak = getGlobalStreak()
 
   return (
-    <div className="page">
+    <div className="page xhs-home">
       <header className="page__header">
         <h1 className="page__title">记忆宫殿</h1>
         <p className="hint">
-          连胜 {getGlobalStreak().streakDays} 天 · {palaceCount} 个宫殿 · 离线本地存储
+          连续学习 {streak.streakDays} 天 · 完全离线
         </p>
       </header>
 
       <main className="page__body">
-        <section className="cardbox">
-          <h2 className="cardbox__title">今日复习</h2>
+        <section className="cardbox home-primary-actions">
+          <h2 className="cardbox__title">今天背什么？</h2>
           <p className="hint" style={{ marginTop: 0 }}>
-            一键进入今日队列（优先选择最该复习的宫殿）。
+            打开后直接进入引导背诵；自由探索放在宫殿卡片的次级入口。
           </p>
-          <div className="row">
-            <Link className="btn primary" to="/today" aria-disabled={busy !== null}>
-              今日复习
-            </Link>
-          </div>
-        </section>
-
-        <section className="cardbox">
-          <h2 className="cardbox__title">宫殿列表</h2>
-          <div className="row">
-            <button className="btn primary" onClick={() => void onCreate()} disabled={busy !== null}>
+          <div className="row home-primary-row">
+            {continuePalace ? (
+              <Link className="btn primary home-primary-btn" to={`/palace/${continuePalace.id}/review`} aria-disabled={busy !== null}>
+                继续背诵
+              </Link>
+            ) : (
+              <button className="btn primary home-primary-btn" onClick={() => void onCreate()} disabled={busy !== null}>
+                开始新的记忆宫殿
+              </button>
+            )}
+            <button className="btn home-primary-btn" onClick={() => void onCreate()} disabled={busy !== null}>
               + 新建宫殿
             </button>
           </div>
-          {busy ? <p className="hint">{busy}</p> : null}
-          {error ? <p className="hint danger-text">{error}</p> : null}
-          {palaces.length === 0 && busy === null ? <p className="hint">暂无宫殿。点击“新建宫殿”开始。</p> : null}
+          {continuePalace ? (
+            <p className="hint" style={{ marginBottom: 0 }}>
+              当前：{continuePalace.title} · 待复习 {reviewStatsByPalace.get(continuePalace.id)?.dueCount ?? 0} 个点
+            </p>
+          ) : null}
         </section>
 
-        {palaces.map((p) => {
-          const filled = filledByPalace.get(p.id) ?? 0
-          const stats = reviewStatsByPalace.get(p.id)
-          const dueCount = stats?.dueCount ?? 0
-          const mastery = stats?.masteryRate
-          const masteryLabel = mastery === null || mastery === undefined ? '—' : `${Math.round(mastery * 100)}%`
-          const lastReviewed = stats?.lastReviewedAt ? new Date(stats.lastReviewedAt).toLocaleString() : '从未'
-          return (
-            <section className="cardbox" key={p.id}>
-              <h2 className="cardbox__title">{p.title}</h2>
-              <p className="hint" style={{ marginTop: 0 }}>
-                模板：{templateLabel(p.templateId)} · 卡片：{filled}/{LOCUS_COUNT} · 今日待复习：{dueCount} · 掌握率：{masteryLabel} · 上次复习：{lastReviewed}
-                {p.customMap ? ` · 地图：${p.customMap.fileName}` : ' · 地图：内置'}
-              </p>
-              <div className="row">
-                <Link className="btn primary" to={`/palace/${p.id}/review`} aria-disabled={busy !== null}>
-                  开始复习
-                </Link>
-                <button className="btn" onClick={() => navigate(`/palace/${p.id}/map`)} disabled={busy !== null}>
-                  进入探索
-                </button>
-                <Link className="btn" to={`/palace/${p.id}/quick-import`} aria-disabled={busy !== null}>
-                  快速输入
-                </Link>
-                <Link className="btn" to={`/palace/${p.id}/import`} aria-disabled={busy !== null}>
-                  高级导入
-                </Link>
-              </div>
-              <div className="row">
-                <button className="btn" onClick={() => void onExport(p)} disabled={busy !== null || filled === 0}>
-                  导出备份 (.mpalace)
-                </button>
-                <Link className="btn" to={`/palace/${p.id}/transfer`} aria-disabled={busy !== null}>
-                  扫码传输
-                </Link>
-                <button className="btn danger" onClick={() => void onDelete(p)} disabled={busy !== null}>
-                  删除
-                </button>
-              </div>
-            </section>
-          )
-        })}
+        {busy ? <p className="hint">{busy}</p> : null}
+        {error ? <p className="hint danger-text">{error}</p> : null}
 
-        <section className="cardbox">
-          <h2 className="cardbox__title">从备份恢复</h2>
-          <p className="hint" style={{ marginTop: 0 }}>
-            选择 `.mpalace` 文件后，会创建一个新宫殿并导入（不会覆盖已有宫殿）。
-          </p>
-          <div className="row">
-            <label className="btn file" aria-disabled={busy !== null}>
-              选择 .mpalace
-              <input
-                type="file"
-                accept=".mpalace"
-                onChange={(e) => {
-                  const f = e.target.files?.[0]
-                  e.currentTarget.value = ''
-                  if (f) void onRestoreFromBackup(f)
-                }}
-              />
-            </label>
-            <Link className="btn" to="/transfer/receive" aria-disabled={busy !== null}>
-              扫码接收
-            </Link>
-          </div>
+        <section className="home-palace-list" aria-label="宫殿列表">
+          {palaces.map((palace) => {
+            const filled = filledByPalace.get(palace.id) ?? 0
+            const stats = reviewStatsByPalace.get(palace.id)
+            const mastery = stats?.masteryRate
+            const masteryLabel = mastery === null || mastery === undefined ? '—' : `${Math.round(mastery * 100)}%`
+            return (
+              <article className="cardbox" key={palace.id}>
+                <h2 className="cardbox__title">{palace.title}</h2>
+                <p className="hint" style={{ marginTop: 0 }}>
+                  {filled}/{LOCUS_COUNT} 个记忆点 · 今日待复习 {stats?.dueCount ?? 0} · 掌握率 {masteryLabel}
+                </p>
+                <div className="row">
+                  <Link className="btn primary" to={`/palace/${palace.id}/review`}>
+                    继续背诵
+                  </Link>
+                  <Link className="btn" to={`/palace/${palace.id}/map`}>
+                    自由探索
+                  </Link>
+                  <Link className="btn" to={`/palace/${palace.id}/quick-import`}>
+                    编辑内容
+                  </Link>
+                  <button className="btn danger" onClick={() => void onDelete(palace)} disabled={busy !== null}>
+                    删除
+                  </button>
+                </div>
+              </article>
+            )
+          })}
         </section>
       </main>
     </div>
