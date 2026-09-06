@@ -1,4 +1,4 @@
-type LockableScreenOrientation = ScreenOrientation & {
+type LockableScreenOrientation = {
   lock?: (orientation: 'landscape' | 'landscape-primary' | 'landscape-secondary') => Promise<void>
   unlock?: () => void
 }
@@ -18,7 +18,8 @@ function isMapRoute() {
 function applyOrientationPreference() {
   if (!isTouchLikeDevice()) return
 
-  const orientation = window.screen?.orientation as LockableScreenOrientation | undefined
+  const screenWithOrientation = window.screen as Screen & { orientation?: LockableScreenOrientation }
+  const orientation = screenWithOrientation.orientation
   if (!orientation) return
 
   if (isMapRoute()) {
