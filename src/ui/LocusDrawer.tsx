@@ -50,54 +50,10 @@ export default function LocusDrawer(props: {
       </div>
 
       <div className="cardbox" style={{ marginBottom: 10 }}>
-        <h3 className="cardbox__title">地图（自定义 GLB）</h3>
-        {props.palace?.customMap ? (
-          <p className="hint" style={{ marginTop: 0 }}>
-            已导入：{props.palace.customMap.fileName} · {Math.round((props.palace.customMap.size / 1024 / 1024) * 10) / 10}MB
-          </p>
-        ) : (
-          <p className="hint" style={{ marginTop: 0 }}>
-            当前：内置 Dust2（GLB）
-          </p>
-        )}
-        <div className="row" style={{ marginTop: 8 }}>
-          <label className="btn file">
-            导入 GLB
-            <input
-              type="file"
-              accept=".glb,model/gltf-binary"
-              onChange={(e) => {
-                const f = e.target.files?.[0]
-                e.currentTarget.value = ''
-                if (!f) return
-                props.onImportGlb(f)
-              }}
-            />
-          </label>
-          {props.palace?.customMap ? (
-            <button
-              className="btn danger"
-              onClick={() => {
-                const ok = confirm('清除自定义地图并恢复内置地图，确定？')
-                if (!ok) return
-                props.onClearCustomMap()
-              }}
-            >
-              清除
-            </button>
-          ) : null}
-        </div>
-        {props.mapBusy ? (
-          <p className="hint" style={{ marginTop: 8 }}>
-            {props.mapBusy}
-          </p>
-        ) : null}
-        {props.mapError ? (
-          <p className="hint danger-text" style={{ marginTop: 8 }}>
-            {props.mapError}
-          </p>
-        ) : null}
-        <p className="hint">要求：GLB 内包含 60 个锚点节点，命名 L01..L60（建议 Blender Empty）。可选：用名为 COLLISION 的节点提供简化碰撞网格。</p>
+        <h3 className="cardbox__title">离线地图</h3>
+        <p className="hint" style={{ marginTop: 0, marginBottom: 0 }}>
+          小红书版本固定使用包内 Dust2 地图，不提供运行时文件导入，避免触发宿主文件能力限制。
+        </p>
       </div>
 
       <div className="loci-grid">
