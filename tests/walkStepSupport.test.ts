@@ -1,0 +1,6 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import {Group,Mesh,BoxGeometry,MeshBasicMaterial,Vector3} from 'three'
+import {PortableWalker} from '../src/offline/walkController'
+function box(g:Group,x:number,y:number,z:number,w:number,h:number,d:number){const m=new Mesh(new BoxGeometry(w,h,d),new MeshBasicMaterial());m.position.set(x,y,z);g.add(m)}
+for(const height of [.15,.3012048,.339,.36,.6024])for(const fps of [30,60,90,120])for(const ceiling of [false,true])test(`support probe: step ${height} at ${fps}Hz${ceiling?' under low ceiling':''}`,()=>{const g=new Group();box(g,0,-.1,0,10,.2,10);box(g,0,height/2,-2,4,height,2);if(ceiling)box(g,0,1.89,-1,4,.2,2);const w=new PortableWalker(g);w.teleportEye(new Vector3(0,1.62,0));for(let f=0;f<120;f++)w.step(1/120,0,0,0);let teleports=0;w.teleportEye=()=>{teleports++;throw new Error('Unexpected recovery')};for(let f=0;f<fps*.85;f++){const before=w.eye();w.step(1/fps,1,0,0);assert.ok(w.eye().distanceTo(before)<.65)}const e=w.eye(),shouldClimb=height<=.34&&!ceiling;if(shouldClimb){assert.ok(e.z<-1.5,JSON.stringify(e));assert.ok(e.y>1.62+height-.04)}else assert.ok(e.z>-.99,JSON.stringify(e));assert.equal(teleports,0)})

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffectEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import QRCode from 'qrcode'
@@ -114,6 +114,8 @@ export default function TransferSendPage() {
     }
   }, [palaceId])
 
+  const onPeerConnected = useEffectEvent((peer: PeerInstance) => { void startSend(peer) })
+
   useEffect(() => {
     if (!palaceId) return
     destroyedRef.current = false
@@ -142,7 +144,7 @@ export default function TransferSendPage() {
     })
 
     peer.on('connect', () => {
-      void startSend(peer)
+      onPeerConnected(peer)
     })
 
     peer.on('error', (err: unknown) => {
@@ -168,7 +170,6 @@ export default function TransferSendPage() {
       }
       peerRef.current = null
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [palaceId])
 
   useEffect(() => {
@@ -190,7 +191,6 @@ export default function TransferSendPage() {
     return () => {
       alive = false
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [offerText])
 
   function closeRoomSocket() {
@@ -284,7 +284,7 @@ export default function TransferSendPage() {
       const p = await getPalace(palaceId)
       if (!p) throw new Error('宫殿不存在或已删除')
       const cards = await getCards(palaceId)
-      const blobIds = Array.from(new Set(cards.flatMap((c) => (c.modelId ? [...c.imageIds, c.modelId] : c.imageIds))))
+      const blobIds = Array.from(new Set([...cards.flatMap((c) => (c.modelId ? [...c.imageIds, c.modelId] : c.imageIds)), ...(p.customMap ? [p.customMap.blobId] : []), ...(p.unassignedAttachments ?? []).map(item => item.blobId)]))
       const blobs = await getBlobs(blobIds)
       const { fileName, blob } = await buildMpFileV1({ palace: p, cards, blobs })
       const buf = await blob.arrayBuffer()

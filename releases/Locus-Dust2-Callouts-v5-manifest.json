@@ -1,0 +1,45 @@
+{
+  "file": "Locus-Dust2-Callouts-v5.html",
+  "bytes": 13207642,
+  "sha256": "1be03cc8a82c94b8698ebed62c311160f8f7637ac1d8fb8c0e04adc135c61f6d",
+  "standalone": true,
+  "defaultSceneId": "dust2-callouts",
+  "buildId": "2026-10-04-v5-recovery",
+  "sceneCatalog": [
+    {
+      "id": "reading-hall",
+      "version": "1.1.0",
+      "anchors": 12,
+      "capacity": 36,
+      "legacy": false
+    },
+    {
+      "id": "dust2",
+      "version": "dust2-vrchris-08f7ab9c-v4",
+      "anchors": 12,
+      "capacity": 36,
+      "legacy": true
+    },
+    {
+      "id": "dust2-callouts",
+      "version": "dust2-vrchris-08f7ab9c-v5",
+      "anchors": 14,
+      "capacity": 42,
+      "legacy": false
+    }
+  ],
+  "sceneAsset": {
+    "id": "scene:dust2",
+    "bytes": 1502884,
+    "sha256": "92da5929670931087cebbb7493eceedfd38f38af9f5e85cf1761e90ff39f5960"
+  },
+  "visualReferenceImages": 41,
+  "visualReferenceBytes": 7239031,
+  "runtimeBytes": 809939,
+  "studioScriptBytes": 1495460,
+  "cssBytes": 7871,
+  "builtAt": "2026-10-04T03:27:11.308Z",
+  "storage": "in-memory; explicit full-project backup",
+  "network": "blocked by CSP; no built-in model endpoint",
+  "testing": "Build and script syntax only. Actual browser/file:// execution remains unverified."
+}

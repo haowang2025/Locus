@@ -66,8 +66,19 @@ function reviewPriorityKey(card: CardRecord, now: Date) {
   }
 }
 
+/** Treat each semantic unit as its own scheduling item, without duplicating persisted cards. */
+export function expandReviewItems(cards: CardRecord[]): Array<CardRecord & { reviewUnitId?: string; unitIndex: number }> {
+  return cards.flatMap(card => {
+    if (!card.mnemonic?.unitIds.length) return [{ ...card, unitIndex: 0 }]
+    return card.mnemonic.unitIds.map((id, unitIndex) => {
+      const progress = card.unitProgress?.[id], rated = (progress?.reviews ?? 0) > 0
+      return { ...card, reviewUnitId: id, unitIndex, confidence: rated ? progress!.rating : undefined, reviewCount: progress?.reviews ?? 0, lastReviewedAt: rated ? progress!.updatedAt : undefined, nextReviewAt: rated ? progress!.nextReviewAt : undefined }
+    })
+  })
+}
+
 export function buildReviewQueue(cards: CardRecord[], now: Date, maxCount: number) {
-  const filled = cards.filter(isCardFilled)
+  const filled = expandReviewItems(cards.filter(isCardFilled))
   const due = filled.filter((c) => isCardDue(c, now))
 
   const candidates = due.length > 0 ? due : filled
@@ -84,12 +95,12 @@ export function buildReviewQueue(cards: CardRecord[], now: Date, maxCount: numbe
       return ka.routeIndex - kb.routeIndex
     })
     .slice(0, Math.max(0, maxCount))
-    .sort((a, b) => a.routeIndex - b.routeIndex)
+    .sort((a, b) => a.routeIndex - b.routeIndex || a.unitIndex - b.unitIndex)
 
   const queue = sorted.map((c) => c.locusId)
   const dueCount = due.length
 
-  return { queue, dueCount, filledCount: filled.length }
+  return { queue, unitQueue: sorted.map(c => c.reviewUnitId ?? null), dueCount, filledCount: filled.length }
 }
 
 export type PalaceReviewStats = {
@@ -102,7 +113,7 @@ export type PalaceReviewStats = {
 }
 
 export function computePalaceReviewStats(palaceId: string, cards: CardRecord[], now: Date): PalaceReviewStats {
-  const filled = cards.filter(isCardFilled)
+  const filled = expandReviewItems(cards.filter(isCardFilled))
   const dueCount = filled.filter((c) => isCardDue(c, now)).length
   const masteredCount = filled.filter((c) => c.confidence === 2).length
   const masteryRate = filled.length > 0 ? masteredCount / filled.length : null

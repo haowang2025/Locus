@@ -206,5 +206,4 @@ wss.on('connection', (ws) => {
   })
 })
 
-// eslint-disable-next-line no-console
 console.log(`[mpalace-signal] WebSocket signaling server running on ws://0.0.0.0:${port}`)

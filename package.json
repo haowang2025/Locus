@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "cap:sync": "npm run build && npx cap sync",
     "android:open": "npm run cap:sync && npx cap open android",
-    "android:apk": "npm run cap:sync && cd android && ./gradlew assembleDebug"
+    "android:apk": "npm run cap:sync && cd android && ./gradlew assembleDebug",
+    "test": "node --import ./node_modules/tsx/dist/loader.mjs --test tests/*.test.ts"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
@@ -43,6 +44,7 @@
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
+    "fake-indexeddb": "6.2.5",
     "globals": "^16.5.0",
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",

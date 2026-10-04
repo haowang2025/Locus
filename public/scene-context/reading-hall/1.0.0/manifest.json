@@ -1,0 +1,552 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "reading-hall",
+  "sceneVersion": "1.0.0",
+  "title": "拾光阅览馆",
+  "coordinateConvention": "Three.js Y-up; Blender conversion (x,-z,y)",
+  "generation": {
+    "method": "blender-geometry-inspection",
+    "tool": "Blender 4.3.2 / Cycles",
+    "sourceGeometrySha256": "0a22f6a8bad680f59de55290b765ba9a2a51181889d469040c1bfc589711547b",
+    "browserVerified": false,
+    "lighting": "Diagnostic studio lighting; Dust2 views include a small camera-side fill to reveal enclosed geometry. This is not a pixel match to browser lighting.",
+    "notes": [
+      "青框表示允许线索体积；不属于实际地图道具。",
+      "俯视图叠加编号与通过几何控制器回放的步行路径。",
+      "仅使用实际导入或程序化导出的几何渲染，没有用生成图片替代场景事实。",
+      "本包未测试模型视觉理解，也不代表浏览器或设备验收。"
+    ]
+  },
+  "overview": {
+    "id": "reading-hall-overview",
+    "path": "scene-context/reading-hall/1.0.0/overview.jpg",
+    "mimeType": "image/jpeg",
+    "sha256": "aa897eb2b0fcc903d165617f662b9a66c4f9e0d3b1b1eeaaada7b4db52057f76",
+    "byteLength": 265175,
+    "width": 1200,
+    "height": 1200,
+    "projection": {
+      "kind": "orthographic",
+      "horizontalSpanMeters": 30,
+      "verticalSpanMeters": 30
+    }
+  },
+  "anchors": [
+    {
+      "id": "hall-entry-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-entry.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "739f31a0924e0b0b5860e48f4e010384ce3931518f4ad2b4491c947e5a32ed31",
+      "byteLength": 152447,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-entry",
+      "label": "黄铜迎宾台",
+      "eye": {
+        "x": 0,
+        "y": 1.6199999964237215,
+        "z": 3.0999999999999996
+      },
+      "lookAt": {
+        "x": 0,
+        "y": 1.5058993075929985,
+        "z": 6.5
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "胡桃木斜面讲台",
+        "正面嵌一条黄铜竖线"
+      ],
+      "cueVolume": {
+        "id": "hall-entry-cue",
+        "center": {
+          "x": 0,
+          "y": 2.1,
+          "z": 6.5
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-globe-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-globe.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "9eddaec1de9e2ff6968ba7f3988ccab889f243c0081f2da598a98d2d14887c62",
+      "byteLength": 140811,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-globe",
+      "label": "蓝色地球仪",
+      "eye": {
+        "x": -6,
+        "y": 1.6199999964237215,
+        "z": 1.7999999999999998
+      },
+      "lookAt": {
+        "x": -6,
+        "y": 1.7585000017881394,
+        "z": 6
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "蓝绿色球体",
+        "被黄铜经纬环抱住",
+        "立于圆柱底座"
+      ],
+      "cueVolume": {
+        "id": "hall-globe-cue",
+        "center": {
+          "x": -6,
+          "y": 2.9,
+          "z": 6
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-atlas-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-atlas.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "04bb6bcc6baf953632fb088493a23c140d1d0c1f64df9721d6c3f4e6b4b77bf2",
+      "byteLength": 166218,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-atlas",
+      "label": "摊开的红色图册",
+      "eye": {
+        "x": -5.3386319434062255,
+        "y": 1.6199999964237215,
+        "z": 1.4829533176128404
+      },
+      "lookAt": {
+        "x": -9,
+        "y": 1.3324590366624804,
+        "z": 2.5
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "矮木桌上的红色大图册",
+        "奶油色双页展开"
+      ],
+      "cueVolume": {
+        "id": "hall-atlas-cue",
+        "center": {
+          "x": -9,
+          "y": 2.06,
+          "z": 2.5
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-clock-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-clock.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "49e39e27ac8cc36c6150d0a56c8e219a04dde18a67b5d74499de4896e6007f88",
+      "byteLength": 165546,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-clock",
+      "label": "高身摆钟",
+      "eye": {
+        "x": -4.705075930949232,
+        "y": 1.6199999964237215,
+        "z": -1.044171284779013
+      },
+      "lookAt": {
+        "x": -8.096593106203166,
+        "y": 1.0699999999999998,
+        "z": -1.8047625879632094
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "深色高柜、象牙白圆钟面和金色摆锤"
+      ],
+      "cueVolume": {
+        "id": "hall-clock-cue",
+        "center": {
+          "x": -7.535719409724071,
+          "y": 0.85,
+          "z": -1.6746043132720159
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-window-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-window.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "259ace70e1b23dc24b2bceb51b3c5415eab1dc9e88531bce393c39adb97ce0c1",
+      "byteLength": 151443,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-window",
+      "label": "琥珀圆窗前石台",
+      "eye": {
+        "x": -6,
+        "y": 1.6199999964237215,
+        "z": -2.3
+      },
+      "lookAt": {
+        "x": -6,
+        "y": 1.832499996125698,
+        "z": -6.581521134078503
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "琥珀色圆窗前的双脚浅石长台",
+        "暖色圆窗与长台形成上下呼应"
+      ],
+      "cueVolume": {
+        "id": "hall-window-cue",
+        "center": {
+          "x": -6,
+          "y": 1.7999999999999998,
+          "z": -5.95
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-herbarium-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-herbarium.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "aa4d66c94320fa10cbf29c5e7938ae8e08d20119a2613584574c81688e205133",
+      "byteLength": 148444,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-herbarium",
+      "label": "绿色植物标本台",
+      "eye": {
+        "x": -0.6081359908365407,
+        "y": 1.6199999964237215,
+        "z": -1.915628371135104
+      },
+      "lookAt": {
+        "x": -2,
+        "y": 1.9787499997019766,
+        "z": -6.125
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "三株不同高度的绿色叶片",
+        "陶罐置于浅木长台"
+      ],
+      "cueVolume": {
+        "id": "hall-herbarium-cue",
+        "center": {
+          "x": -2,
+          "y": 2.9,
+          "z": -5.95
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-telescope-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-telescope.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "7b21c535612cbac3bf6e597614316976ab600a3a91cb18e9603d9142b5dc8542",
+      "byteLength": 172418,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-telescope",
+      "label": "铜色望远镜",
+      "eye": {
+        "x": 1.0983870228394412,
+        "y": 1.6199999964237215,
+        "z": -2.7679352975553915
+      },
+      "lookAt": {
+        "x": 1.9467317195418847,
+        "y": 0.85,
+        "z": -4.905763933245549
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "铜色长镜筒和三脚架",
+        "旁边是小圆托盘"
+      ],
+      "cueVolume": {
+        "id": "hall-telescope-cue",
+        "center": {
+          "x": 1.9467317195418847,
+          "y": 0.85,
+          "z": -4.905763933245549
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-cabinet-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-cabinet.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "6980ec89d44da8994f12ff7c409cf9e2f2cce0b9e5c564415ee5452fe033ecfa",
+      "byteLength": 168642,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-cabinet",
+      "label": "紫色矿石陈列柜",
+      "eye": {
+        "x": 7,
+        "y": 1.6199999964237215,
+        "z": -2.3
+      },
+      "lookAt": {
+        "x": 7,
+        "y": 0.991000007018447,
+        "z": -5.25
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "开放木柜内三颗紫色切面晶体",
+        "背板深蓝"
+      ],
+      "cueVolume": {
+        "id": "hall-cabinet-cue",
+        "center": {
+          "x": 7,
+          "y": 0.85,
+          "z": -4.8
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-fountain-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-fountain.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "d60d102f076cd4e214e83d05f139e6de1358e8d0dd9d1bac7d5f7846769fd5b3",
+      "byteLength": 165634,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-fountain",
+      "label": "青石涟漪池",
+      "eye": {
+        "x": 5.666025702650871,
+        "y": 1.6199999964237215,
+        "z": -1.1332051405301744
+      },
+      "lookAt": {
+        "x": 9,
+        "y": 1.0708287010341881,
+        "z": -1.7999999999999998
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "青灰石圆池",
+        "蓝色水面和三道同心涟漪"
+      ],
+      "cueVolume": {
+        "id": "hall-fountain-cue",
+        "center": {
+          "x": 9,
+          "y": 1.7,
+          "z": -1.8
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-easel-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-easel.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "505f4bf2e6bb5d040b9fe5015a36df181ab01cfb682a612cf3572a489e0e43ac",
+      "byteLength": 183092,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-easel",
+      "label": "赭红画架",
+      "eye": {
+        "x": 5.205266807797944,
+        "y": 1.6199999964237215,
+        "z": 1.735088935932648
+      },
+      "lookAt": {
+        "x": 7.722914167293235,
+        "y": 0.8712499994039535,
+        "z": 2.573092515877269
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "赭红三脚画架",
+        "奶油色画布上有醒目的蓝色圆形"
+      ],
+      "cueVolume": {
+        "id": "hall-easel-cue",
+        "center": {
+          "x": 7.5769750529242295,
+          "y": 0.85,
+          "z": 2.525658350974743
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-chess-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-chess.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "8b3d947e05c677f1e542993c7235c16d28fd10955621ddd0ddd35314b4461346",
+      "byteLength": 154850,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-chess",
+      "label": "黑白棋盘桌",
+      "eye": {
+        "x": 5,
+        "y": 1.6265000001080334,
+        "z": 2.7
+      },
+      "lookAt": {
+        "x": 5,
+        "y": 1.526250001788139,
+        "z": 6.299999999999999
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "方形黑白棋盘、两枚不同高度的木质棋子"
+      ],
+      "cueVolume": {
+        "id": "hall-chess-cue",
+        "center": {
+          "x": 5,
+          "y": 2.3,
+          "z": 6.3
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    },
+    {
+      "id": "hall-table-view",
+      "path": "scene-context/reading-hall/1.0.0/hall-table.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "486ed15e6745ca8d48f4ab9a261eb901661c017a640baaf078b2a02a03005e35",
+      "byteLength": 140828,
+      "width": 960,
+      "height": 540,
+      "anchorId": "hall-table",
+      "label": "中央八角讨论桌",
+      "eye": {
+        "x": 0,
+        "y": 1.6199999964237215,
+        "z": 4.85
+      },
+      "lookAt": {
+        "x": 0,
+        "y": 1.1069441030025482,
+        "z": 0
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "八角胡桃木桌面",
+        "中央嵌黄铜环",
+        "四周有矮凳"
+      ],
+      "cueVolume": {
+        "id": "hall-table-cue",
+        "center": {
+          "x": 0,
+          "y": 1.75,
+          "z": 0
+        },
+        "size": {
+          "x": 1.5,
+          "y": 1.5,
+          "z": 1.2
+        }
+      }
+    }
+  ]
+}

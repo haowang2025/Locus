@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { getCards, listPalaces, nowIso } from '../lib/db'
 import { chooseNextPalaceForTodayReview, computePalaceReviewStats, buildReviewQueue } from '../lib/review'
 import { newId } from '../lib/id'
-import { defaultReviewStats, readActiveReviewSession, writeActiveReviewSession } from '../lib/reviewSession'
+import { defaultReviewStats, reviewPlanFingerprint, readActiveReviewSession, writeActiveReviewSession } from '../lib/reviewSession'
 
 export default function TodayReviewStartPage() {
   const navigate = useNavigate()
@@ -48,7 +48,7 @@ export default function TodayReviewStartPage() {
 
         const cards = await getCards(next.id)
         if (!alive) return
-        const { queue, filledCount } = buildReviewQueue(cards, now, 10)
+        const { queue, unitQueue, filledCount } = buildReviewQueue(cards, now, 10)
         if (queue.length === 0) {
           if (filledCount === 0) {
             setError(`宫殿「${next.title}」暂无可复习内容。请先导入或编辑卡片。`)
@@ -65,6 +65,8 @@ export default function TodayReviewStartPage() {
           kind: 'today',
           palaceId: next.id,
           queue,
+          unitQueue,
+          contentFingerprint: next.mnemonicPlan ? reviewPlanFingerprint(next.mnemonicPlan) : undefined,
           index: 0,
           startedAt: nowIso(),
           stats: defaultReviewStats(),

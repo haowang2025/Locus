@@ -2,13 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { getBlobs, getCards, nowIso, putBlob, upsertCard } from '../lib/db'
 import { newId } from '../lib/id'
-import type { BlobId, CardRecord, LocusId } from '../lib/types'
+import { parseAttachmentBindings } from '../lib/attachmentBindings'
+import { attachmentBindingKey, initialAttachmentDraft, remapAttachmentDraft, replaceAttachmentBinding, validateAttachmentUpload } from '../lib/attachmentEditor'
+import type { AttachmentBinding, BlobId, CardRecord, LocusId, UnassignedAttachment } from '../lib/types'
 
 type ExistingImage = { kind: 'existing'; id: BlobId; mime: string; url: string }
 type NewImage = { kind: 'new'; id: string; file: File; url: string }
 type ImageItem = ExistingImage | NewImage
 
-type ModelItem = { kind: 'existing'; id: BlobId } | { kind: 'new'; file: File }
+type ModelItem = { kind: 'existing'; id: BlobId } | { kind: 'new'; id: string; file: File }
 type ModelCandidate = { id: BlobId; locusId: LocusId; routeIndex: number; scale: number }
 
 function makeObjectUrl(blob: Blob) {
@@ -18,6 +20,8 @@ function makeObjectUrl(blob: Blob) {
 export default function CardModal(props: {
   locusId: LocusId
   initialCard: CardRecord
+  attachmentsOnly?: boolean
+  unassignedAttachments?: UnassignedAttachment[]
   onClose: () => void
   onSaved?: (card: CardRecord) => void
 }) {
@@ -34,7 +38,46 @@ export default function CardModal(props: {
   )
   const [modelScaleDraft, setModelScaleDraft] = useState(() => String(props.initialCard.modelScale ?? 1))
   const [modelCandidates, setModelCandidates] = useState<ModelCandidate[]>([])
+  const aliveRef = useRef(true)
   const urlsRef = useRef<Set<string>>(new Set())
+  const [selectedScope, setSelectedScope] = useState(props.initialCard.mnemonic?.unitIds[0] ?? '')
+  const [bindings, setBindings] = useState(() => initialAttachmentDraft(props.initialCard))
+  const [unconfirmedCues, setUnconfirmedCues] = useState<Set<string>>(() => new Set())
+  const [imagesLoaded, setImagesLoaded] = useState(false)
+  const semantic = props.initialCard.mnemonic
+  const activeAssetIds = new Set([...images.map(image => image.id), ...(model ? [model.id] : [])])
+  const pendingCueKeys = bindings.filter(binding => binding.role === 'cue' && activeAssetIds.has(binding.assetId) && unconfirmedCues.has(attachmentBindingKey(binding))).map(attachmentBindingKey)
+  const cueConfirmationNeeded = pendingCueKeys.length > 0
+
+  function scopedBinding(assetId: string, role: AttachmentBinding['role']): AttachmentBinding {
+    return { assetId, role, ...(semantic ? selectedScope === '@anchor' ? { scope: 'anchor' as const } : { unitId: selectedScope } : {}), ...(semantic?.sourceFingerprint ? { sourceFingerprint: semantic.sourceFingerprint } : {}) }
+  }
+
+  function changeRole(assetId: string, role: AttachmentBinding['role']) {
+    const next = scopedBinding(assetId, role)
+    setBindings(previous => replaceAttachmentBinding(previous, next))
+    setUnconfirmedCues(previous => {
+      const result = new Set(previous), key = attachmentBindingKey(next)
+      if (role === 'cue') result.add(key)
+      else result.delete(key)
+      return result
+    })
+  }
+
+  function roleControl(assetId: string) {
+    const target = scopedBinding(assetId, 'reference')
+    const exact = bindings.find(binding => attachmentBindingKey(binding) === attachmentBindingKey(target))
+    return <label className="field field--stack">
+      <span className="field__label">当前范围附件用途</span>
+      <select className="field__input" aria-label={`附件 ${assetId} 的用途`} disabled={busy !== null} value={exact?.role ?? ''} onChange={event => changeRole(assetId, event.target.value as AttachmentBinding['role'])}>
+        <option value="" disabled>未明确绑定当前范围</option>
+        <option value="reference">答案参考（揭晓后显示）</option>
+        <option value="cue" disabled={!!semantic && !semantic.sourceFingerprint}>记忆线索（揭晓前显示）</option>
+      </select>
+      {!exact && <span className="hint">整个地标的绑定仍可能适用；请明确指定当前单元用途。</span>}
+    </label>
+  }
+
 
   const existingImageIds = useMemo(() => props.initialCard.imageIds, [props.initialCard.imageIds])
 
@@ -54,16 +97,21 @@ export default function CardModal(props: {
         })(),
       }))
       setImages(items)
+      setImagesLoaded(true)
     }
-    void load()
+    void load().catch(error => { if (!cancelled) setError(`附件读取失败：${error instanceof Error ? error.message : String(error)}`) })
     return () => {
       cancelled = true
     }
   }, [existingImageIds])
 
   useEffect(() => {
+    const urls = urlsRef.current
+    aliveRef.current = true
     return () => {
-      for (const url of urlsRef.current) URL.revokeObjectURL(url)
+      aliveRef.current = false
+      for (const url of urls) URL.revokeObjectURL(url)
+      urls.clear()
     }
   }, [])
 
@@ -94,15 +142,23 @@ export default function CardModal(props: {
     }
   }, [props.initialCard.palaceId])
 
-  function onAddFiles(files: FileList | null) {
-    if (!files || files.length === 0) return
-    const next: ImageItem[] = []
-    for (const f of Array.from(files)) {
-      const url = makeObjectUrl(f)
-      urlsRef.current.add(url)
-      next.push({ kind: 'new', id: newId('img'), file: f, url })
-    }
-    setImages((prev) => [...prev, ...next])
+  async function onAddFiles(files: FileList | null) {
+    if (!files || files.length === 0 || busy) return
+    setBusy('检查图片安全尺寸…'); setError(null)
+    try {
+      const selected = Array.from(files)
+      for (const file of selected) await validateAttachmentUpload(file, 'image')
+      if (!aliveRef.current) return
+      const next: ImageItem[] = selected.map(file => {
+        const url = makeObjectUrl(file)
+        urlsRef.current.add(url)
+        return { kind: 'new', id: newId('img'), file, url }
+      })
+      setImages(previous => [...previous, ...next])
+      setBindings(previous => next.reduce((result, item) => replaceAttachmentBinding(result, scopedBinding(item.id, 'reference')), previous))
+    } catch (error) {
+      if (aliveRef.current) setError(error instanceof Error ? error.message : String(error))
+    } finally { if (aliveRef.current) setBusy(null) }
   }
 
   function onRemoveImage(id: string) {
@@ -116,10 +172,18 @@ export default function CardModal(props: {
     })
   }
 
-  function onSelectModel(file: File | null) {
-    if (!file) return
-    setModel({ kind: 'new', file })
-    setError(null)
+  async function onSelectModel(file: File | null) {
+    if (!file || busy) return
+    setBusy('检查模型附件…'); setError(null)
+    try {
+      await validateAttachmentUpload(file, 'model')
+      if (!aliveRef.current) return
+      const id = newId('draft_model')
+      setModel({ kind: 'new', id, file })
+      changeRole(id, 'reference')
+    } catch (error) {
+      if (aliveRef.current) setError(error instanceof Error ? error.message : String(error))
+    } finally { if (aliveRef.current) setBusy(null) }
   }
 
   function onRemoveModel() {
@@ -130,31 +194,64 @@ export default function CardModal(props: {
     const trimmed = id.trim()
     if (!trimmed) return
     setModel({ kind: 'existing', id: trimmed })
+    if (trimmed !== model?.id) changeRole(trimmed, 'reference')
     const candidate = modelCandidates.find((c) => c.id === trimmed)
     if (candidate) setModelScaleDraft(String(candidate.scale ?? 1))
     setError(null)
   }
 
+  async function choosePreservedAttachment(item: UnassignedAttachment) {
+    if (busy || !imagesLoaded) return
+    setBusy('读取保留附件…'); setError(null)
+    try {
+      const blob = (await getBlobs([item.blobId]))[0]
+      if (!blob) throw new Error('保留附件文件缺失，请从原备份恢复。')
+      await validateAttachmentUpload(new Blob([blob.data], { type: blob.mime }), item.kind)
+      if (!aliveRef.current) return
+      if (item.kind === 'image') {
+        if (!images.some(image => image.id === item.blobId)) {
+          const url = makeObjectUrl(blob.data)
+          urlsRef.current.add(url)
+          setImages(previous => [...previous, { kind: 'existing', id: item.blobId, mime: blob.mime, url }])
+        }
+      } else {
+        setModel({ kind: 'existing', id: item.blobId })
+        setModelScaleDraft(String(item.modelScale ?? 1))
+      }
+      changeRole(item.blobId, 'reference')
+    } catch (error) {
+      if (aliveRef.current) setError(error instanceof Error ? error.message : String(error))
+    } finally { if (aliveRef.current) setBusy(null) }
+  }
+
   async function onSave() {
+    if (cueConfirmationNeeded || !imagesLoaded || busy) return
     setError(null)
     setBusy('保存中…')
     try {
+      const draftAssets = new Map([...activeAssetIds].map(id => [id, id]))
+      parseAttachmentBindings(remapAttachmentDraft(bindings, draftAssets), [...activeAssetIds], semantic?.unitIds, semantic?.sourceFingerprint)
+      const assetMap = new Map<string, string>()
       const existingIds: BlobId[] = images.filter((x) => x.kind === 'existing').map((x) => x.id)
+      for (const id of existingIds) assetMap.set(id, id)
       const newFiles = images.filter((x) => x.kind === 'new')
 
       const newIds: BlobId[] = []
       for (const item of newFiles) {
         const id = newId('blob')
         newIds.push(id)
+        assetMap.set(item.id, id)
         await putBlob({ id, mime: item.file.type || 'application/octet-stream', data: item.file, createdAt: nowIso() })
       }
 
       let modelId: BlobId | undefined
       if (model?.kind === 'existing') {
         modelId = model.id
+        assetMap.set(model.id, model.id)
       } else if (model?.kind === 'new') {
         const id = newId('model')
         modelId = id
+        assetMap.set(model.id, id)
         await putBlob({ id, mime: model.file.type || 'model/gltf-binary', data: model.file, createdAt: nowIso() })
       }
 
@@ -167,13 +264,14 @@ export default function CardModal(props: {
 
       const next: CardRecord = {
         ...props.initialCard,
-        prompt: trimmedPrompt,
-        answer: trimmedAnswer,
-        note: trimmedNote ? trimmedNote : undefined,
+        prompt: props.attachmentsOnly ? props.initialCard.prompt : trimmedPrompt,
+        answer: props.attachmentsOnly ? props.initialCard.answer : trimmedAnswer,
+        note: props.attachmentsOnly ? props.initialCard.note : trimmedNote ? trimmedNote : undefined,
+        attachmentBindings: parseAttachmentBindings(remapAttachmentDraft(bindings, assetMap), [...assetMap.values()], semantic?.unitIds, semantic?.sourceFingerprint),
         imageIds: [...existingIds, ...newIds],
         modelId: modelId,
         modelScale: modelId ? modelScale : undefined,
-        revealedCount,
+        revealedCount: props.attachmentsOnly ? props.initialCard.revealedCount : revealedCount,
         updatedAt: nowIso(),
       }
 
@@ -220,6 +318,11 @@ export default function CardModal(props: {
         </div>
 
         <div className="modal__body">
+          {props.attachmentsOnly && <p className="hint">仅编辑附件，原文、问题和答案保持不变。默认作为揭晓后参考资料。</p>}
+          {semantic && <label className="field field--stack"><span className="field__label">附件绑定范围</span><select className="field__input" disabled={busy !== null} value={selectedScope} onChange={event => setSelectedScope(event.target.value)}>{semantic.unitIds.map((id, index) => <option key={id} value={id}>含义单元 {index + 1} · {id}</option>)}<option value="@anchor">整个地标（所有含义单元）</option></select><span className="hint">各单元独立设置，单元专属绑定优先于整个地标绑定。整个地标的线索可能在所有单元揭晓前显示，请勿包含任何单元的答案。</span></label>}
+          {!!props.unassignedAttachments?.length && <details><summary>重新绑定保留的附件（{props.unassignedAttachments.length}）</summary><p className="hint">以下文件未被自动匹配到新材料。选择后默认作为当前范围的答案参考；原附件记录仍会保留。</p>{props.unassignedAttachments.map((item, index) => <div key={`${item.blobId}:${index}`} className="field field--stack"><span>{item.kind === 'image' ? '图片' : '模型'} · {item.originalLocusId} · {item.blobId}</span><span className="hint">{item.reason}</span><button className="btn" disabled={busy !== null || !imagesLoaded} onClick={() => void choosePreservedAttachment(item)}>作为答案参考重新绑定</button></div>)}</details>}
+          {!props.attachmentsOnly && <>
+
           <label className="field field--stack">
             <span className="field__label">Prompt</span>
             <textarea className="textarea textarea--small" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
@@ -245,12 +348,14 @@ export default function CardModal(props: {
             <textarea className="textarea textarea--small" value={note} onChange={(e) => setNote(e.target.value)} />
           </label>
 
+          </>}
+
           <div className="field field--stack">
             <span className="field__label">图片（可选）</span>
             <div className="row">
               <label className="btn file">
                 添加图片
-                <input type="file" accept="image/*" multiple onChange={(e) => onAddFiles(e.target.files)} />
+                <input type="file" accept="image/*" disabled={!imagesLoaded || busy !== null} multiple onChange={(e) => { void onAddFiles(e.target.files); e.currentTarget.value = '' }} />
               </label>
             </div>
             {images.length > 0 ? (
@@ -258,6 +363,7 @@ export default function CardModal(props: {
                 {images.map((img) => (
                   <div className="image-grid__item" key={img.id}>
                     <img className="image-grid__img" src={img.url} alt="" />
+                    {roleControl(img.id)}
                     <button className="btn danger image-grid__remove" onClick={() => onRemoveImage(img.id)}>
                       移除
                     </button>
@@ -277,10 +383,11 @@ export default function CardModal(props: {
                 <input
                   type="file"
                   accept=".glb,model/gltf-binary"
+                  disabled={busy !== null}
                   onChange={(e) => {
                     const f = e.target.files?.[0] ?? null
                     e.currentTarget.value = ''
-                    onSelectModel(f)
+                    void onSelectModel(f)
                   }}
                 />
               </label>
@@ -315,6 +422,7 @@ export default function CardModal(props: {
             ) : (
               <p className="hint">暂无模型</p>
             )}
+            {model && roleControl(model.id)}
             {model ? (
               <label className="field">
                 <span className="field__label">缩放</span>
@@ -331,12 +439,14 @@ export default function CardModal(props: {
             ) : null}
           </div>
 
+          {cueConfirmationNeeded && <label className="field field--stack" style={{ padding: 12, border: '2px solid #b97825', borderRadius: 8 }}><span>线索会在答案揭晓前显示。我已检查新增或修改的线索，不包含当前单元或其他单元的答案；整个地标线索对所有单元均安全。</span><span><input type="checkbox" checked={false} onChange={event => { if (event.target.checked) setUnconfirmedCues(previous => new Set([...previous].filter(key => !pendingCueKeys.includes(key)))) }} /> 我确认以上线索用途</span></label>}
+          {!imagesLoaded && <p className="hint">正在读取现有附件，读取完成后可保存。</p>}
           {error ? <p className="hint danger-text">{error}</p> : null}
           {busy ? <p className="hint">{busy}</p> : null}
         </div>
 
         <div className="modal__footer">
-          <button className="btn primary" onClick={() => void onSave()} disabled={busy !== null}>
+          <button className="btn primary" onClick={() => void onSave()} disabled={busy !== null || !imagesLoaded || cueConfirmationNeeded}>
             保存
           </button>
         </div>

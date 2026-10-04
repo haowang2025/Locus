@@ -1,6 +1,8 @@
 export class AudioManager {
   private ctx: AudioContext | null = null
 
+  dispose(): void { const context=this.ctx;this.ctx=null;if(context&&context.state!=='closed')void context.close().catch(()=>{}) }
+
   private ensureCtx(): AudioContext {
     if (!this.ctx) this.ctx = new AudioContext()
     if (this.ctx.state === 'suspended') {

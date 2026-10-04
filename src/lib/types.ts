@@ -1,3 +1,4 @@
+import type { PalacePlan, MnemonicCardData } from './palaceTypes'
 export type LocusId = `L${string}`
 
 export type TemplateId = 'dust2_blockout_v2' | 'dust2like_v1'
@@ -7,7 +8,11 @@ export type PalaceId = string
 
 export type BlobId = string
 
+export interface UnassignedAttachment { blobId: BlobId; kind: 'image' | 'model'; modelScale?: number; originalLocusId: LocusId; unitIds: string[]; sourceFingerprint?: string; reason: string }
+
 export interface PalaceRecord {
+  unassignedAttachments?: UnassignedAttachment[]
+  mnemonicPlan?: PalacePlan
   id: PalaceId
   title: string
   templateId: TemplateId
@@ -22,7 +27,14 @@ export interface PalaceRecord {
   updatedAt: string
 }
 
+export interface UnitRecallProgress { rating: 0 | 1 | 2; reviews: number; updatedAt: string; nextReviewAt?: string; reveals?: number }
+
+export interface AttachmentBinding { assetId: BlobId; unitId?: string; scope?: 'anchor'; sourceFingerprint?: string; role: 'cue' | 'reference' }
+
 export interface CardRecord {
+  attachmentBindings?: AttachmentBinding[]
+  unitProgress?: Record<string, UnitRecallProgress>
+  mnemonic?: MnemonicCardData
   palaceId: PalaceId
   locusId: LocusId
   routeIndex: number
@@ -53,8 +65,14 @@ export interface MpFileV1 {
   templateId: TemplateId
   palace: {
     title: string
+    mnemonicPlan?: PalacePlan
+    unassignedAttachments?: Array<Omit<UnassignedAttachment, 'blobId'> & { id: BlobId; file: string; mime: string }>
+    customMap?: { id: BlobId; file: string; fileName: string; mime: string; size: number; importedAt: string }
   }
   cards: Array<{
+    attachmentBindings?: AttachmentBinding[]
+    unitProgress?: Record<string, UnitRecallProgress>
+    mnemonic?: MnemonicCardData
     locusId: LocusId
     routeIndex: number
     prompt: string

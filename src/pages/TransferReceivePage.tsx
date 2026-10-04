@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffectEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import QRCode from 'qrcode'
@@ -95,6 +95,8 @@ export default function TransferReceivePage() {
     }
   }, [])
 
+  const onIncomingData = useEffectEvent((data: unknown) => { void handleIncomingData(data) })
+
   const answerText = useMemo(() => (phase.kind === 'answer' ? phase.answerText : ''), [phase])
   const answerQr = useMemo(() => (phase.kind === 'answer' ? phase.answerQr : null), [phase])
 
@@ -131,7 +133,7 @@ export default function TransferReceivePage() {
     })
 
     peer.on('data', (data: unknown) => {
-      void handleIncomingData(data)
+      onIncomingData(data)
     })
 
     peer.on('error', (err: unknown) => {

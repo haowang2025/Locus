@@ -1,3 +1,4 @@
+import type { XRHandSpace } from 'three/src/renderers/webxr/WebXRController.js'
 import {
   AmbientLight,
   Box3,
@@ -26,7 +27,18 @@ import { Octree } from 'three/examples/jsm/math/Octree.js'
 import { Capsule } from 'three/examples/jsm/math/Capsule.js'
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
-import type { LocusId } from '../lib/types'
+import type { LocusId, CardRecord } from '../lib/types'
+import { BACKUP_LIMITS, validateModelBytes } from '../lib/mpalace'
+import { getSceneDefinition, type SceneId } from '../lib/sceneRegistry'
+import { loadSceneWorld } from './sceneAdapters'
+import { fitAnchorFieldOfView } from './anchorCamera'
+import { PortableWalker } from '../offline/walkController'
+import { fitAttachmentModel } from '../offline/attachments'
+import { createSceneRouteGuide } from './routeGuide'
+import { SceneResourceDisposer } from './resourceDisposer'
+import { AnchoredImages, type LocusImage } from './anchoredImages'
+import { buildMnemonicCueGroup, animateMnemonicCueGroup, setMnemonicCueFocus } from './mnemonicCues'
+import type { LocusPose } from './dust2blockout'
 import { LOCUS_COUNT, locusIdFromRouteIndex } from '../lib/loci'
 import { createDust2BlockoutWorld } from './dust2blockout'
 import { loadDust2GlbWorld } from './dust2glb'
@@ -56,12 +68,25 @@ export class FpsWorld {
   private xrSession: XRSession | null = null
   private onVrChange?: (active: boolean) => void
   private onInteract?: () => void
+  private onViewWarning?: (message: string | null) => void
   private disposed = false
+  private resources = new SceneResourceDisposer()
+  private ownedWorlds = new Set<Group>()
+  private loadGeneration = 0
+  private modelLoadGeneration = new Map<LocusId,number>()
+  private feedbackEnabled = true
 
   private markerRoots = new Map<LocusId, Group>()
   private markerRings = new Map<LocusId, Mesh>()
   private markerBarrels = new Map<LocusId, Mesh>()
   private locusModels = new Map<LocusId, Object3D>()
+  private locusImages: AnchoredImages
+  private mnemonicGroups: Group[] = []
+  private mnemonicFocusedUnitId: string | null = null
+  private routeGuide: Group | null = null
+  private activeSceneId: SceneId | null = null
+  private lociPitch = new Map<LocusId, number>()
+  private framedLocusId: LocusId | null = null
   private filled = new Set<LocusId>()
   private ringMat: MeshStandardMaterial
   private ringMatFilled: MeshStandardMaterial
@@ -104,6 +129,7 @@ export class FpsWorld {
   private leftHandWasFist = false
   private lastPointTeleportAt = 0
 
+  private sceneWalker: PortableWalker | null = null
   private playerCollider: Capsule
   private playerVelocity = new Vector3()
   private playerDirection = new Vector3()
@@ -128,18 +154,24 @@ export class FpsWorld {
     onNearChange?: (locusId: LocusId | null) => void
     onVrChange?: (active: boolean) => void
     onInteract?: () => void
+    onViewWarning?: (message: string | null) => void
     input?: InputAdapter
+    feedbackEnabled?: boolean
   }) {
     this.container = params.container
+    this.feedbackEnabled = params.feedbackEnabled ?? true
     this.onNearChange = params.onNearChange
     this.onVrChange = params.onVrChange
     this.onInteract = params.onInteract
+    this.onViewWarning = params.onViewWarning
 
     const { group, loci } = createDust2BlockoutWorld()
     this.worldGroup = group
     this.defaultWorldGroup = group
+    this.ownedWorlds.add(group)
 
     this.scene = new Scene()
+    this.locusImages = new AnchoredImages(this.scene)
     this.scene.background = new Color(0xbfd6e6)
 
     this.camera = new PerspectiveCamera(70, 1, 0.05, 250)
@@ -235,10 +267,14 @@ export class FpsWorld {
   }
 
   dispose() {
+    if(this.disposed)return
     this.disposed = true
+    this.loadGeneration++
     this.running = false
     this.onVrChange = undefined
     this.onInteract = undefined
+    this.onViewWarning = undefined
+    this.onNearChange = undefined
     const session = this.xrSession ?? this.renderer.xr.getSession()
     session?.removeEventListener('end', this.onXrSessionEnd)
     void session?.end().catch(() => {
@@ -247,9 +283,23 @@ export class FpsWorld {
 
     this.renderer.setAnimationLoop(null)
     this.detachEvents()
+    this.clearAllLocusImages()
     this.clearAllLocusModels()
+    this.clearRouteGuide()
     this.disposeVrCard()
     this.disposeFadeOverlay()
+    this.clearMnemonicGroups()
+    this.locusImages.dispose()
+    this.resources.object(this.scene)
+    for(const world of this.ownedWorlds)this.resources.object(world)
+    this.ownedWorlds.clear()
+    this.resources.material(this.ringMat);this.resources.material(this.ringMatFilled)
+    this.resources.material(this.teleportMatOk);this.resources.material(this.teleportMatBad)
+    this.markerRoots.clear();this.markerRings.clear();this.markerBarrels.clear();this.locusModels.clear();this.modelLoadGeneration.clear()
+    this.scene.clear();this.worldOctree.clear();this.sceneWalker=null
+    this.audio.dispose()
+    this.renderer.renderLists.dispose()
+    if(!this.renderer.xr.isPresenting)this.renderer.forceContextLoss()
     this.renderer.dispose()
     this.renderer.domElement.remove()
   }
@@ -259,6 +309,7 @@ export class FpsWorld {
   }
 
   start() {
+    if(this.disposed)return
     this.running = true
     this.lastT = performance.now()
     this.renderer.setAnimationLoop((t) => {
@@ -268,6 +319,8 @@ export class FpsWorld {
 
       this.step(dt)
       this.updateVr()
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      for (const cue of this.mnemonicGroups) animateMnemonicCueGroup(cue, now / 1000, reducedMotion)
       this.renderer.render(this.scene, this.camera)
     })
   }
@@ -287,17 +340,138 @@ export class FpsWorld {
     }
   }
 
+  private clearRouteGuide() {
+    if(!this.routeGuide)return
+    this.routeGuide.removeFromParent();this.resources.object(this.routeGuide);this.routeGuide=null
+  }
+  setRouteGuideVisible(visible:boolean) { if(this.routeGuide)this.routeGuide.visible=visible }
+
+  private clearMnemonicGroups() {
+    for(const group of this.mnemonicGroups){group.removeFromParent();this.resources.object(group)}
+    this.mnemonicGroups=[]
+  }
+  private enterLegacyMode() {
+    this.clearAllLocusImages()
+    this.sceneWalker=null;this.clearRouteGuide();this.clearMnemonicGroups()
+    this.playerCollider=new Capsule(new Vector3(0,.35,0),new Vector3(0,1.6,0),.35)
+    this.activeSceneId=null;this.framedLocusId=null;this.lociPitch.clear()
+    this.camera.fov=70;this.camera.updateProjectionMatrix();this.onViewWarning?.(null)
+  }
+  private retireUnusedWorlds() {
+    for(const world of this.ownedWorlds){if(world===this.worldGroup||world===this.defaultWorldGroup)continue;world.removeFromParent();this.resources.object(world);this.ownedWorlds.delete(world)}
+  }
+  setMnemonicCueFocus(unitId: string | null) {
+    this.mnemonicFocusedUnitId = unitId
+    for (const group of this.mnemonicGroups) setMnemonicCueFocus(group, unitId)
+  }
+  setMnemonicCards(cards: CardRecord[]) {
+    if(this.disposed)return
+    this.clearMnemonicGroups()
+    if (!this.activeSceneId) return
+    const scene = getSceneDefinition(this.activeSceneId)
+    for (const card of cards) {
+      if (!card.mnemonic) continue
+      const anchor = scene.anchors.find(a => a.id === card.mnemonic!.anchorId && a.locusId === card.locusId)
+      if (!anchor) continue
+      const group = buildMnemonicCueGroup(card.mnemonic, anchor)
+      setMnemonicCueFocus(group, this.mnemonicFocusedUnitId)
+      group.traverse(object=>{object.userData.locusId=card.locusId})
+      group.visible = !this.locusImages.has(card.locusId) && !this.locusModels.has(card.locusId)
+      this.scene.add(group); this.mnemonicGroups.push(group)
+      const barrel = this.markerBarrels.get(card.locusId)
+      if (barrel) barrel.visible = false
+    }
+  }
+
+  /** Registry adapter: only its authored anchor IDs become interactable. */
+  async loadBuiltinScene(id: SceneId): Promise<void> {
+    const generation=++this.loadGeneration
+    const definition = getSceneDefinition(id)
+    const loaded = await loadSceneWorld(id)
+    if (this.disposed||generation!==this.loadGeneration) {this.resources.object(loaded.group);return}
+    this.clearAllLocusImages()
+    this.clearAllLocusModels();this.clearMnemonicGroups()
+    this.ownedWorlds.add(loaded.group)
+    const loci: LocusPose[] = definition.anchors.map(a => ({
+      locusId: a.locusId, routeIndex: a.routeOrder, position: a.approach.position,
+      markerPosition: { ...a.cueVolume.center, y: a.cueVolume.center.y - a.cueVolume.size.y / 2 },
+      yaw: a.approach.yaw, pitch: a.approach.pitch,
+    }))
+    this.scene.remove(this.worldGroup)
+    this.worldGroup = loaded.group; this.defaultWorldGroup = loaded.group
+    this.retireUnusedWorlds()
+    this.scene.add(loaded.group)
+    this.clearRouteGuide()
+    this.routeGuide=createSceneRouteGuide(definition);this.scene.add(this.routeGuide)
+    this.worldOctree = this.buildOctreeFromWorld(loaded.group)
+    this.sceneWalker = new PortableWalker(this.findCollisionRoot(loaded.group) ?? loaded.group)
+    this.playerCollider = this.sceneWalker.capsule
+    this.lociPos.clear(); this.lociMarkerPos.clear(); this.lociYaw.clear(); this.lociPitch.clear()
+    this.defaultLociPos.clear(); this.defaultLociMarkerPos.clear(); this.defaultLociYaw.clear()
+    for (const locus of loci) {
+      const p = new Vector3(locus.position.x, locus.position.y, locus.position.z)
+      const m = locus.markerPosition!
+      this.lociPos.set(locus.locusId, p); this.defaultLociPos.set(locus.locusId, p.clone())
+      this.lociMarkerPos.set(locus.locusId, new Vector3(m.x,m.y,m.z)); this.defaultLociMarkerPos.set(locus.locusId, new Vector3(m.x,m.y,m.z))
+      this.lociYaw.set(locus.locusId,locus.yaw); this.defaultLociYaw.set(locus.locusId,locus.yaw); this.lociPitch.set(locus.locusId,locus.pitch)
+    }
+    for (const [locusId, root] of this.markerRoots) {
+      const point = this.lociMarkerPos.get(locusId)
+      root.visible = !!point
+      if (point) root.position.copy(point)
+      const barrel = this.markerBarrels.get(locusId)
+      if (barrel) barrel.visible = false
+    }
+    this.activeSceneId = id
+    this.resize()
+    this.scene.background = new Color(id === 'reading-hall' ? 0xd9d2c2 : 0xbfd6e6)
+    this.teleportTo(loci[0]!.locusId)
+  }
+
+  private refreshLocusAttachmentVisibility(locusId: LocusId) {
+    const image = this.locusImages.has(locusId), model = this.locusModels.get(locusId)
+    if(model)model.visible = !image
+    const groups = this.mnemonicGroups.filter(group => group.userData.locusId === locusId)
+    for(const group of groups)group.visible = !image && !model
+    const barrel = this.markerBarrels.get(locusId)
+    if(barrel)barrel.visible = !image && !model && groups.length === 0
+  }
+
+  clearLocusImages(locusId: LocusId) {
+    this.locusImages.clear(locusId)
+    this.refreshLocusAttachmentVisibility(locusId)
+  }
+
+  clearAllLocusImages() {
+    this.locusImages.clearAll()
+    for(const id of this.markerRoots.keys())this.refreshLocusAttachmentVisibility(id)
+  }
+
+  async setLocusImages(locusId: LocusId, images: LocusImage[], selectedId?: string): Promise<void> {
+    if (this.disposed) return
+    this.clearLocusImages(locusId)
+    const anchor = this.activeSceneId ? getSceneDefinition(this.activeSceneId).anchors.find(a => a.locusId === locusId) : undefined
+    const marker = this.markerRoots.get(locusId)
+    if (!anchor && !marker) return
+    const center = marker?.getWorldPosition(new Vector3()) ?? new Vector3()
+    center.y += .8
+    const placement = anchor ?? {cueVolume:{center,size:{x:1.5,y:1.5,z:1.5}},approach:{eye:this.camera.getWorldPosition(new Vector3())}}
+    await this.locusImages.set(locusId, images, placement, selectedId)
+    this.refreshLocusAttachmentVisibility(locusId)
+  }
+
   clearLocusModel(locusId: LocusId) {
+    this.modelLoadGeneration.set(locusId,(this.modelLoadGeneration.get(locusId)??0)+1)
     const existing = this.locusModels.get(locusId)
     if (!existing) return
     existing.removeFromParent()
+    this.resources.object(existing)
     this.locusModels.delete(locusId)
-    const barrel = this.markerBarrels.get(locusId)
-    if (barrel) barrel.visible = true
+    this.refreshLocusAttachmentVisibility(locusId)
   }
 
   clearAllLocusModels() {
-    for (const id of Array.from(this.locusModels.keys())) {
+    for (const id of new Set([...this.locusModels.keys(),...this.modelLoadGeneration.keys()])) {
       this.clearLocusModel(id)
     }
   }
@@ -333,22 +507,29 @@ export class FpsWorld {
   }
 
   playHitFeedback() {
+    if(this.disposed||!this.feedbackEnabled)return
     this.audio.hitSound()
     this.vibrate(40)
     this.pulseXrHaptics('right', 0.45, 60)
   }
 
   playRevealFeedback() {
+    if(this.disposed||!this.feedbackEnabled)return
     this.audio.revealSound()
     this.vibrate(30)
     this.pulseXrHaptics('right', 0.35, 80)
   }
 
   async setLocusModel(locusId: LocusId, blob: Blob, scale: number): Promise<void> {
+    if(this.disposed)return
+    if(!blob.size || blob.size > BACKUP_LIMITS.assetBytes) throw new Error('模型附件为空或超过48MB。')
+    const generation=(this.modelLoadGeneration.get(locusId)??0)+1;this.modelLoadGeneration.set(locusId,generation)
     const root = this.markerRoots.get(locusId)
     if (!root) return
 
     const buffer = await blob.arrayBuffer()
+    if(this.disposed || this.modelLoadGeneration.get(locusId)!==generation)return
+    validateModelBytes(new Uint8Array(buffer), blob.type === 'model/gltf+json' ? blob.type : 'model/gltf-binary')
     const gltf = await new Promise<GLTF>((resolve, reject) => {
       const loader = new GLTFLoader()
       loader.parse(buffer, '', (result) => resolve(result), reject)
@@ -356,30 +537,32 @@ export class FpsWorld {
 
     const model = gltf.scene as Object3D | undefined
     if (!model) throw new Error('GLB 解析失败：缺少 scene')
+    if(this.disposed||this.modelLoadGeneration.get(locusId)!==generation){this.resources.object(model);return}
 
     model.traverse((obj) => {
       obj.userData.locusId = locusId
     })
 
     const clampedScale = Math.max(0.01, Math.min(10, Number.isFinite(scale) ? scale : 1))
-    model.scale.setScalar(clampedScale)
-
+    const anchor = this.activeSceneId ? getSceneDefinition(this.activeSceneId).anchors.find(a => a.locusId === locusId) : undefined
+    try {
+      if (anchor) {
+        // Same legal volume and fitting as the portable viewer.
+        fitAttachmentModel(model, anchor.cueVolume.size, clampedScale)
+        const center = anchor.cueVolume.center
+        model.position.add(new Vector3(center.x,center.y,center.z))
+      } else {
+        model.scale.setScalar(clampedScale)
+        model.position.set(0,0,0);model.updateWorldMatrix(true,true)
+        const bbox=new Box3().setFromObject(model)
+        if(!bbox.isEmpty()){const center=bbox.getCenter(new Vector3());model.position.set(-center.x,-bbox.min.y,-center.z)}
+      }
+    } catch(error) { this.resources.object(model); throw error }
     this.clearLocusModel(locusId)
-
-    // Place the model on the marker root plane: center in XZ and rest on Y=0.
-    model.position.set(0, 0, 0)
-    model.updateWorldMatrix(true, true)
-    const bbox = new Box3().setFromObject(model)
-    if (!bbox.isEmpty()) {
-      const center = new Vector3()
-      bbox.getCenter(center)
-      model.position.set(-center.x, -bbox.min.y, -center.z)
-    }
-
-    root.add(model)
+    if(anchor)this.scene.add(model);else root.add(model)
+    model.visible = !this.locusImages.has(locusId)
     this.locusModels.set(locusId, model)
-    const barrel = this.markerBarrels.get(locusId)
-    if (barrel) barrel.visible = false
+    this.refreshLocusAttachmentVisibility(locusId)
   }
 
   isVrPresenting() {
@@ -395,7 +578,7 @@ export class FpsWorld {
     const supported = await navigator.xr.isSessionSupported('immersive-vr')
     if (!supported) throw new Error('WebXR 不可用：不支持 immersive-vr')
 
-    const init: any = {
+    const init: XRSessionInit = {
       requiredFeatures: ['local-floor'],
       optionalFeatures: ['bounded-floor', 'hand-tracking', 'dom-overlay'],
     }
@@ -429,15 +612,21 @@ export class FpsWorld {
     const pos = this.lociPos.get(locusId)
     if (!pos) return
 
+    this.framedLocusId = locusId
+    this.updateAnchorFieldOfView()
     const y = pos.y
-    this.playerCollider.start.set(pos.x, y + 0.35, pos.z)
-    this.playerCollider.end.set(pos.x, y + 1.6, pos.z)
+    if (this.sceneWalker) this.sceneWalker.teleportEye(new Vector3(pos.x,y+1.6,pos.z))
+    else {
+      this.playerCollider.start.set(pos.x, y + 0.35, pos.z)
+      this.playerCollider.end.set(pos.x, y + 1.6, pos.z)
+    }
     this.playerVelocity.set(0, 0, 0)
+    this.playerOnFloor = false
 
     const baseYaw = this.lociYaw.get(locusId) ?? 0
     const headYaw = this.getHeadYawLocal()
     this.yaw = baseYaw - headYaw
-    this.pitch = 0
+    this.pitch = this.lociPitch.get(locusId) ?? 0
     this.applyLook()
     this.syncRigToCollider()
     if (this.running) this.playTeleportFeedback()
@@ -449,6 +638,7 @@ export class FpsWorld {
   }
 
   private teleportNearAndAimImmediate(locusId: LocusId, opts?: { distance?: number }) {
+    if (this.activeSceneId) { this.teleportToImmediate(locusId); return }
     const targetPos = this.lociPos.get(locusId)
     if (!targetPos) return
 
@@ -493,6 +683,7 @@ export class FpsWorld {
     this.playerCollider.start.set(chosen.x, baseY + 0.35, chosen.z)
     this.playerCollider.end.set(chosen.x, baseY + 1.6, chosen.z)
     this.playerVelocity.set(0, 0, 0)
+    this.playerOnFloor = false
 
     const eye = this.playerCollider.end
     const dx = aimTarget.x - eye.x
@@ -523,11 +714,17 @@ export class FpsWorld {
     this.raycaster.ray.direction.copy(this.aimRay.direction)
     this.raycaster.near = 0
     this.raycaster.far = 14
-    const targets = Array.from(this.markerRoots.values())
-    const hits = this.raycaster.intersectObjects(targets, true)
+    const targets = [...Array.from(this.markerRoots.values()).filter(root=>root.visible),...this.mnemonicGroups.filter(root=>root.visible),...this.locusImages.objects(),...Array.from(this.locusModels.values()).filter(root=>root.visible)]
+    const hits = this.raycaster.intersectObjects(targets, true).filter(hit=>{
+      let object: Object3D | null = hit.object
+      while(object){if(!object.visible)return false;object=object.parent}
+      return true
+    })
     const hit = hits[0]
     if (!hit) return null
     if (hit.distance > 14) return null
+    const obstacle = this.worldOctree.rayIntersect(this.aimRay)
+    if (obstacle && obstacle.distance < hit.distance - 0.06) return null
     const id = hit.object.userData.locusId as LocusId | undefined
     return id ?? null
   }
@@ -545,6 +742,7 @@ export class FpsWorld {
   }
 
   private playTeleportFeedback() {
+    if(this.disposed||!this.feedbackEnabled)return
     this.audio.teleportSound()
     this.vibrate(35)
     this.pulseXrHaptics('left', 0.3, 120)
@@ -913,7 +1111,7 @@ export class FpsWorld {
     this.raycaster.ray.direction.copy(this.aimRay.direction)
     this.raycaster.near = 0
     this.raycaster.far = 5
-    const hit = this.raycaster.intersectObject(this.vrCardMesh, false)[0] as any
+    const hit = this.raycaster.intersectObject(this.vrCardMesh, false)[0]
 
     let next: VrUiActionId | null = null
     const uv: Vector2 | undefined = hit?.uv
@@ -937,8 +1135,8 @@ export class FpsWorld {
   private initXrInputs() {
     // Controllers
     for (let i = 0; i < 2; i++) {
-      const ctrl = this.renderer.xr.getController(i) as any
-      ctrl.addEventListener('connected', (e: any) => {
+      const ctrl = this.renderer.xr.getController(i)
+      ctrl.addEventListener('connected', (e: { data?: XRInputSource }) => {
         ctrl.userData.handedness = e?.data?.handedness ?? 'none'
       })
       ctrl.addEventListener('disconnected', () => {
@@ -952,8 +1150,8 @@ export class FpsWorld {
 
     // Hands (hand-tracking): Three.js emits custom `pinchstart/pinchend` events.
     for (let i = 0; i < 2; i++) {
-      const hand = this.renderer.xr.getHand(i) as any
-      hand.addEventListener('connected', (e: any) => {
+      const hand = this.renderer.xr.getHand(i)
+      hand.addEventListener('connected', (e: { data?: XRInputSource }) => {
         hand.userData.handedness = e?.data?.handedness ?? 'none'
       })
       hand.addEventListener('disconnected', () => {
@@ -965,7 +1163,7 @@ export class FpsWorld {
     }
   }
 
-  private onXrSelectStart = (e: any) => {
+  private onXrSelectStart = (e: { data?: XRInputSource }) => {
     const handedness = e?.data?.handedness ?? 'none'
     if (handedness === 'right') {
       this.onInteract?.()
@@ -976,19 +1174,19 @@ export class FpsWorld {
     }
   }
 
-  private onXrSelectEnd = (e: any) => {
+  private onXrSelectEnd = (e: { data?: XRInputSource }) => {
     const handedness = e?.data?.handedness ?? 'none'
     if (handedness === 'left') this.endFreeTeleport()
   }
 
-  private onXrSqueezeStart = (e: any) => {
+  private onXrSqueezeStart = (e: { data?: XRInputSource }) => {
     const handedness = e?.data?.handedness ?? 'none'
     if (handedness !== 'left') return
     if (!this.renderer.xr.isPresenting) return
     this.tryPointTeleport()
   }
 
-  private onXrPinchStart = (e: any) => {
+  private onXrPinchStart = (e: { handedness?: XRHandedness }) => {
     const handedness = e?.handedness ?? 'none'
     if (handedness === 'right') {
       this.onInteract?.()
@@ -997,7 +1195,7 @@ export class FpsWorld {
     if (handedness === 'left') this.beginFreeTeleport()
   }
 
-  private onXrPinchEnd = (e: any) => {
+  private onXrPinchEnd = (e: { handedness?: XRHandedness }) => {
     const handedness = e?.handedness ?? 'none'
     if (handedness === 'left') this.endFreeTeleport()
   }
@@ -1033,9 +1231,13 @@ export class FpsWorld {
 
   private teleportToPositionImmediate(pos: Vector3) {
     const y = pos.y
-    this.playerCollider.start.set(pos.x, y + 0.35, pos.z)
-    this.playerCollider.end.set(pos.x, y + 1.6, pos.z)
+    if (this.sceneWalker) this.sceneWalker.teleportEye(new Vector3(pos.x,y+1.6,pos.z))
+    else {
+      this.playerCollider.start.set(pos.x, y + 0.35, pos.z)
+      this.playerCollider.end.set(pos.x, y + 1.6, pos.z)
+    }
     this.playerVelocity.set(0, 0, 0)
+    this.playerOnFloor = false
     this.syncRigToCollider()
     this.updateNearLocus()
     if (this.running) this.playTeleportFeedback()
@@ -1075,7 +1277,7 @@ export class FpsWorld {
     }
 
     this.updateAimRay()
-    const hit: any = this.worldOctree.rayIntersect(this.aimRay)
+    const hit = this.worldOctree.rayIntersect(this.aimRay)
     if (!hit || !hit.position || !hit.triangle) {
       this.teleportValid = false
       this.teleportReticle.visible = false
@@ -1125,7 +1327,7 @@ export class FpsWorld {
 
   private findHandByHandedness(handedness: 'left' | 'right') {
     for (let i = 0; i < 2; i++) {
-      const hand = this.renderer.xr.getHand(i) as any
+      const hand = this.renderer.xr.getHand(i)
       if (!hand?.visible) continue
       if ((hand.userData?.handedness ?? 'none') !== handedness) continue
       return hand
@@ -1133,14 +1335,14 @@ export class FpsWorld {
     return null
   }
 
-  private isHandFist(hand: any) {
+  private isHandFist(hand: XRHandSpace) {
     // Very simple heuristic: all fingertips are close to wrist.
     const joints = hand?.joints
     if (!joints) return false
     const wrist = joints['wrist']
     if (!wrist || !wrist.visible) return false
 
-    const tips = ['thumb-tip', 'index-finger-tip', 'middle-finger-tip', 'ring-finger-tip', 'pinky-finger-tip']
+    const tips: XRHandJoint[] = ['thumb-tip', 'index-finger-tip', 'middle-finger-tip', 'ring-finger-tip', 'pinky-finger-tip']
     const wristPos: Vector3 = wrist.position
     const threshold = 0.115
 
@@ -1157,6 +1359,7 @@ export class FpsWorld {
   }
 
   async loadCustomMapFromBlob(blob: Blob): Promise<{ anchorCount: number }> {
+    const generation=++this.loadGeneration
     const buffer = await blob.arrayBuffer()
     const gltf = await new Promise<GLTF>((resolve, reject) => {
       const loader = new GLTFLoader()
@@ -1165,6 +1368,7 @@ export class FpsWorld {
 
     const nextWorld = gltf.scene as Group
     if (!nextWorld) throw new Error('GLB 解析失败：缺少 scene')
+    if(this.disposed||generation!==this.loadGeneration){this.resources.object(nextWorld);throw new Error('场景请求已关闭或更新')}
     nextWorld.updateWorldMatrix(true, true)
 
     const anchors = new Map<LocusId, Object3D>()
@@ -1182,6 +1386,7 @@ export class FpsWorld {
       if (!anchors.has(id)) missing.push(id)
     }
     if (missing.length > 0) {
+      this.resources.object(nextWorld)
       throw new Error(`GLB 缺少锚点：${missing.join(', ')}`)
     }
 
@@ -1193,7 +1398,7 @@ export class FpsWorld {
     }
 
     const nextOctree = new Octree()
-    nextOctree.fromGraphNode((collisionRoot ?? nextWorld) as any)
+    nextOctree.fromGraphNode(collisionRoot ?? nextWorld)
 
     const nextLociPos = new Map<LocusId, Vector3>()
     const nextLociMarkerPos = new Map<LocusId, Vector3>()
@@ -1218,9 +1423,12 @@ export class FpsWorld {
     }
 
     // Commit changes (swap world + octree + loci + marker positions).
+    this.enterLegacyMode()
     this.scene.remove(this.worldGroup)
     this.worldGroup = nextWorld
+    this.ownedWorlds.add(nextWorld)
     this.scene.add(this.worldGroup)
+    this.retireUnusedWorlds()
     this.worldOctree = nextOctree
 
     this.lociPos = nextLociPos
@@ -1228,6 +1436,7 @@ export class FpsWorld {
     this.lociYaw = nextLociYaw
     for (const [id, root] of this.markerRoots.entries()) {
       const p = this.lociMarkerPos.get(id) ?? this.lociPos.get(id)
+      root.visible = !!p
       if (p) root.position.copy(p)
     }
 
@@ -1242,6 +1451,7 @@ export class FpsWorld {
       this.scene.remove(this.worldGroup)
       this.worldGroup = this.defaultWorldGroup
       this.scene.add(this.worldGroup)
+      this.retireUnusedWorlds()
     }
 
     this.worldOctree = this.buildOctreeFromWorld(this.worldGroup)
@@ -1252,6 +1462,7 @@ export class FpsWorld {
 
     for (const [id, root] of this.markerRoots.entries()) {
       const p = this.lociMarkerPos.get(id) ?? this.lociPos.get(id)
+      root.visible = !!p
       if (p) root.position.copy(p)
     }
 
@@ -1259,57 +1470,9 @@ export class FpsWorld {
   }
 
   async loadBuiltinDust2Obj(): Promise<void> {
+    const generation=++this.loadGeneration
     const { group: nextWorld, loci } = await loadDust2ObjWorld()
-    nextWorld.updateWorldMatrix(true, true)
-
-    const collisionRoot = this.findCollisionRoot(nextWorld)
-    const nextOctree = new Octree()
-    nextOctree.fromGraphNode((collisionRoot ?? nextWorld) as any)
-
-    const nextLociPos = new Map<LocusId, Vector3>()
-    const nextLociMarkerPos = new Map<LocusId, Vector3>()
-    const nextLociYaw = new Map<LocusId, number>()
-    const nextDefaultLociPos = new Map<LocusId, Vector3>()
-    const nextDefaultLociMarkerPos = new Map<LocusId, Vector3>()
-    const nextDefaultLociYaw = new Map<LocusId, number>()
-
-    for (const locus of loci) {
-      const basePos = new Vector3(locus.position.x, locus.position.y, locus.position.z)
-      const markerPos = locus.markerPosition
-        ? new Vector3(locus.markerPosition.x, locus.markerPosition.y, locus.markerPosition.z)
-        : basePos.clone()
-      nextLociPos.set(locus.locusId, basePos.clone())
-      nextLociMarkerPos.set(locus.locusId, markerPos.clone())
-      nextLociYaw.set(locus.locusId, locus.yaw)
-      nextDefaultLociPos.set(locus.locusId, basePos)
-      nextDefaultLociMarkerPos.set(locus.locusId, markerPos)
-      nextDefaultLociYaw.set(locus.locusId, locus.yaw)
-    }
-
-    this.scene.remove(this.worldGroup)
-    this.worldGroup = nextWorld
-    this.defaultWorldGroup = nextWorld
-    this.scene.add(this.worldGroup)
-
-    this.worldOctree = nextOctree
-
-    this.lociPos = nextLociPos
-    this.lociMarkerPos = nextLociMarkerPos
-    this.lociYaw = nextLociYaw
-    this.defaultLociPos = nextDefaultLociPos
-    this.defaultLociMarkerPos = nextDefaultLociMarkerPos
-    this.defaultLociYaw = nextDefaultLociYaw
-
-    for (const [id, root] of this.markerRoots.entries()) {
-      const p = this.lociMarkerPos.get(id) ?? this.lociPos.get(id)
-      if (p) root.position.copy(p)
-    }
-
-    this.teleportTo(locusIdFromRouteIndex(1))
-  }
-
-  async loadBuiltinDust2Glb(): Promise<void> {
-    const { group: nextWorld, loci } = await loadDust2GlbWorld()
+    if(this.disposed||generation!==this.loadGeneration){this.resources.object(nextWorld);return}
     nextWorld.updateWorldMatrix(true, true)
 
     const collisionRoot = this.findCollisionRoot(nextWorld)
@@ -1336,10 +1499,13 @@ export class FpsWorld {
       nextDefaultLociYaw.set(locus.locusId, locus.yaw)
     }
 
+    this.enterLegacyMode()
     this.scene.remove(this.worldGroup)
     this.worldGroup = nextWorld
+    this.ownedWorlds.add(nextWorld)
     this.defaultWorldGroup = nextWorld
     this.scene.add(this.worldGroup)
+    this.retireUnusedWorlds()
 
     this.worldOctree = nextOctree
 
@@ -1352,6 +1518,63 @@ export class FpsWorld {
 
     for (const [id, root] of this.markerRoots.entries()) {
       const p = this.lociMarkerPos.get(id) ?? this.lociPos.get(id)
+      root.visible = !!p
+      if (p) root.position.copy(p)
+    }
+
+    this.teleportTo(locusIdFromRouteIndex(1))
+  }
+
+  async loadBuiltinDust2Glb(): Promise<void> {
+    const generation=++this.loadGeneration
+    const { group: nextWorld, loci } = await loadDust2GlbWorld()
+    if(this.disposed||generation!==this.loadGeneration){this.resources.object(nextWorld);return}
+    nextWorld.updateWorldMatrix(true, true)
+
+    const collisionRoot = this.findCollisionRoot(nextWorld)
+    const nextOctree = new Octree()
+    nextOctree.fromGraphNode(collisionRoot ?? nextWorld)
+
+    const nextLociPos = new Map<LocusId, Vector3>()
+    const nextLociMarkerPos = new Map<LocusId, Vector3>()
+    const nextLociYaw = new Map<LocusId, number>()
+    const nextDefaultLociPos = new Map<LocusId, Vector3>()
+    const nextDefaultLociMarkerPos = new Map<LocusId, Vector3>()
+    const nextDefaultLociYaw = new Map<LocusId, number>()
+
+    for (const locus of loci) {
+      const basePos = new Vector3(locus.position.x, locus.position.y, locus.position.z)
+      const markerPos = locus.markerPosition
+        ? new Vector3(locus.markerPosition.x, locus.markerPosition.y, locus.markerPosition.z)
+        : basePos.clone()
+      nextLociPos.set(locus.locusId, basePos.clone())
+      nextLociMarkerPos.set(locus.locusId, markerPos.clone())
+      nextLociYaw.set(locus.locusId, locus.yaw)
+      nextDefaultLociPos.set(locus.locusId, basePos)
+      nextDefaultLociMarkerPos.set(locus.locusId, markerPos)
+      nextDefaultLociYaw.set(locus.locusId, locus.yaw)
+    }
+
+    this.enterLegacyMode()
+    this.scene.remove(this.worldGroup)
+    this.worldGroup = nextWorld
+    this.ownedWorlds.add(nextWorld)
+    this.defaultWorldGroup = nextWorld
+    this.scene.add(this.worldGroup)
+    this.retireUnusedWorlds()
+
+    this.worldOctree = nextOctree
+
+    this.lociPos = nextLociPos
+    this.lociMarkerPos = nextLociMarkerPos
+    this.lociYaw = nextLociYaw
+    this.defaultLociPos = nextDefaultLociPos
+    this.defaultLociMarkerPos = nextDefaultLociMarkerPos
+    this.defaultLociYaw = nextDefaultLociYaw
+
+    for (const [id, root] of this.markerRoots.entries()) {
+      const p = this.lociMarkerPos.get(id) ?? this.lociPos.get(id)
+      root.visible = !!p
       if (p) root.position.copy(p)
     }
 
@@ -1373,8 +1596,18 @@ export class FpsWorld {
   private buildOctreeFromWorld(world: Group) {
     const collisionRoot = this.findCollisionRoot(world)
     const octree = new Octree()
-    octree.fromGraphNode((collisionRoot ?? world) as any)
+    octree.fromGraphNode(collisionRoot ?? world)
     return octree
+  }
+
+  private updateAnchorFieldOfView() {
+    if (!this.activeSceneId || !this.framedLocusId) return
+    const anchor = getSceneDefinition(this.activeSceneId).anchors.find(a=>a.locusId===this.framedLocusId)
+    if (!anchor) return
+    const framing = fitAnchorFieldOfView(anchor,this.camera.aspect)
+    this.camera.fov = framing.fov
+    this.onViewWarning?.(framing.fits ? null : '窄屏下线索贴近边缘；可横屏或使用文字点位。')
+    this.camera.updateProjectionMatrix()
   }
 
   private resize() {
@@ -1382,6 +1615,7 @@ export class FpsWorld {
     const h = this.container.clientHeight
     if (w === 0 || h === 0) return
     this.camera.aspect = w / h
+    this.updateAnchorFieldOfView()
     this.camera.updateProjectionMatrix()
     this.renderer.setSize(w, h, false)
   }
@@ -1404,10 +1638,10 @@ export class FpsWorld {
   }
 
   private syncRigToCollider() {
-    const floorY = this.playerCollider.start.y - 0.35
+    const floorY = this.playerCollider.start.y - (this.sceneWalker?.radius ?? 0.35)
     this.xrRig.position.set(this.playerCollider.start.x, floorY, this.playerCollider.start.z)
     if (!this.renderer.xr.isPresenting) {
-      this.camera.position.set(0, 1.6, 0)
+      this.camera.position.set(0, this.sceneWalker?.eyeHeight ?? 1.6, 0)
     }
   }
 
@@ -1467,6 +1701,20 @@ export class FpsWorld {
     // touch joystick: y+ is down, so forward is -y.
     forward += -this.moveVec.y
     side += this.moveVec.x
+    const inputLength = Math.hypot(forward,side)
+    if (inputLength > 1) { forward /= inputLength; side /= inputLength }
+    if (this.sceneWalker) {
+      const direction = this.getForwardVector(this.playerDirection)
+      const heading = Math.atan2(-direction.x,-direction.z)
+      this.sceneWalker.step(dt,forward,side,heading,this.isRunning()?2:1)
+      this.playerOnFloor = this.sceneWalker.grounded
+      this.syncRigToCollider(); this.updateNearLocus(); return
+    }
+    // Static friction: a resting capsule on a slope must not creep during recall.
+    if (this.playerOnFloor && inputLength < 0.001) {
+      this.playerVelocity.set(0,0,0)
+      this.syncRigToCollider(); this.updateNearLocus(); return
+    }
 
     if (forward !== 0) {
       this.playerVelocity.add(this.getForwardVector(this.playerDirection).multiplyScalar(forward * speedDelta))
@@ -1476,8 +1724,9 @@ export class FpsWorld {
     }
 
     const deltaPos = this.playerVelocity.clone().multiplyScalar(dt)
-    this.playerCollider.translate(deltaPos)
-    this.playerCollisions()
+    const substeps = Math.max(1, Math.ceil(deltaPos.length() / 0.15))
+    deltaPos.divideScalar(substeps)
+    for (let i=0;i<substeps;i++) { this.playerCollider.translate(deltaPos); this.playerCollisions() }
 
     this.syncRigToCollider()
 
@@ -1493,7 +1742,7 @@ export class FpsWorld {
     const result = this.worldOctree.capsuleIntersect(this.playerCollider)
     this.playerOnFloor = false
     if (result) {
-      this.playerOnFloor = result.normal.y > 0
+      this.playerOnFloor = result.normal.y > 0.45
       if (!this.playerOnFloor) {
         this.playerVelocity.addScaledVector(result.normal, -result.normal.dot(this.playerVelocity))
       } else {
@@ -1510,7 +1759,15 @@ export class FpsWorld {
       const dx = p.x - pos.x
       const dy = p.y - (pos.y + 1.6)
       const dz = p.z - pos.z
-      const d2 = dx * dx + dy * dy + dz * dz
+      let d2 = dx * dx + dy * dy + dz * dz
+      if(this.activeSceneId){
+        const anchor=getSceneDefinition(this.activeSceneId).anchors.find(a=>a.locusId===id)
+        if(anchor){
+          const target=new Vector3(anchor.cueVolume.center.x,anchor.cueVolume.center.y,anchor.cueVolume.center.z)
+          d2=Math.min(d2,p.distanceToSquared(target))
+          if(d2<2.2*2.2){const delta=target.clone().sub(p),distance=delta.length();const obstacle=this.worldOctree.rayIntersect(new Ray(p.clone(),delta.normalize()));if(obstacle&&obstacle.distance<distance-.05)continue}
+        }
+      }
       if (best === null || d2 < best.d2) best = { id, d2 }
     }
 

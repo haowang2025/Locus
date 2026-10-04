@@ -1,4 +1,4 @@
-import { openDB } from 'idb'
+import { openDB, type IDBPObjectStore } from 'idb'
 
 import { newId } from './id'
 import type { BlobId, BlobRecord, CardRecord, LocusId, PalaceRecord, TemplateId } from './types'
@@ -17,41 +17,65 @@ type StoreName = 'palace' | 'cards' | 'blobs'
 const ALL_STORES: StoreName[] = ['palace', 'cards', 'blobs']
 
 export async function getDb() {
+  let migrationFailure: Error | undefined
   return openDB(DB_NAME, DB_VERSION, {
-    upgrade(db, oldVersion) {
+    upgrade(db, oldVersion, _newVersion, transaction) {
+      void transaction.done.catch(() => undefined) // openDB reports migration failure; consume the transaction rejection too.
       if (oldVersion < 1) {
-        if (!db.objectStoreNames.contains('palace')) {
-          db.createObjectStore('palace', { keyPath: 'id' })
-        }
-
+        if (!db.objectStoreNames.contains('palace')) db.createObjectStore('palace', { keyPath: 'id' })
         if (!db.objectStoreNames.contains('cards')) {
           const store = db.createObjectStore('cards', { keyPath: ['palaceId', 'locusId'] })
           store.createIndex('byPalace', 'palaceId')
           store.createIndex('byRoute', ['palaceId', 'routeIndex'])
         }
-
-        if (!db.objectStoreNames.contains('blobs')) {
-          db.createObjectStore('blobs', { keyPath: 'id' })
-        }
+        if (!db.objectStoreNames.contains('blobs')) db.createObjectStore('blobs', { keyPath: 'id' })
       }
-
       if (oldVersion >= 1 && oldVersion < 2) {
-        // MVP migration: drop and recreate cards store (existing cards will be lost).
-        if (db.objectStoreNames.contains('cards')) {
+        // Read all legacy records before replacing the key path. The entire copy runs
+        // inside the versionchange transaction: any failure restores the original v1 DB.
+        void (async () => {
+          const oldStore = transaction.objectStore('cards')
+          const rows = await oldStore.getAll() as Array<Record<string, unknown>>
+          const keys = await oldStore.getAllKeys()
+          const palaceStore = transaction.objectStore('palace')
+          const palaces = await palaceStore.getAll() as PalaceRecord[]
+          const fallbackId = palaces.some(p => p.id === 'current') ? 'current' : palaces.length === 1 ? palaces[0].id : palaces.length === 0 ? 'current' : null
+          const seen = new Set<string>()
+          const migrated = rows.map((row, i) => {
+            const locusId = typeof row.locusId === 'string' ? row.locusId : typeof keys[i] === 'string' ? keys[i] as string : ''
+            const palaceId = typeof row.palaceId === 'string' && row.palaceId ? row.palaceId : fallbackId
+            const routeIndex = typeof row.routeIndex === 'number' ? row.routeIndex : /^L\d+$/.test(locusId) ? Number(locusId.slice(1)) : NaN
+            if (!palaceId || !/^L(?:0[1-9]|[1-5][0-9]|60)$/.test(locusId) || !Number.isSafeInteger(routeIndex) || routeIndex < 1 || routeIndex > 60) throw new Error('旧版卡片缺少可确定的宫殿或地标标识。')
+            const key = JSON.stringify([palaceId, locusId])
+            if (seen.has(key)) throw new Error('旧版卡片存在重复目标键，不能安全合并。')
+            seen.add(key)
+            return { ...row, palaceId, locusId, routeIndex, prompt: row.prompt ?? '', answer: row.answer ?? '', imageIds: row.imageIds ?? [], revealedCount: row.revealedCount ?? 0, updatedAt: row.updatedAt ?? nowIso() }
+          })
+          // Preserve orphaned cards by making their existing palace ID visible again.
+          const knownPalaces = new Set(palaces.map(p => p.id))
+          for (const card of migrated) if (!knownPalaces.has(card.palaceId)) {
+            const time = nowIso()
+            await palaceStore.put({ id: card.palaceId, title: '恢复的旧版宫殿', templateId: 'dust2_blockout_v2', createdAt: time, updatedAt: time })
+            knownPalaces.add(card.palaceId)
+          }
           db.deleteObjectStore('cards')
-        }
-        const store = db.createObjectStore('cards', { keyPath: ['palaceId', 'locusId'] })
-        store.createIndex('byPalace', 'palaceId')
-        store.createIndex('byRoute', ['palaceId', 'routeIndex'])
+          const next = db.createObjectStore('cards', { keyPath: ['palaceId', 'locusId'] })
+          next.createIndex('byPalace', 'palaceId')
+          next.createIndex('byRoute', ['palaceId', 'routeIndex'])
+          for (const card of migrated) await next.put(card)
+        })().catch(error => {
+          migrationFailure = new Error(`旧版数据升级已停止，原数据库保持未修改。请保留原应用数据并先导出备份，再处理此问题：${error instanceof Error ? error.message : String(error)}`)
+          try { transaction.abort() } catch { /* Request failure may already have aborted it. */ }
+        })
       }
     },
-  })
+  }).catch(error => { throw migrationFailure ?? error })
 }
 
-export async function tx<T>(
-  mode: IDBTransactionMode,
+export async function tx<T, Mode extends IDBTransactionMode>(
+  mode: Mode,
   storeNames: StoreName[] | StoreName,
-  fn: (stores: { palace: any; cards: any; blobs: any }) => Promise<T>,
+  fn: (stores: { [Name in StoreName]: IDBPObjectStore<unknown, StoreName[], Name, Mode> }) => Promise<T>,
 ): Promise<T> {
   const db = await getDb()
   // For this MVP we always include all stores in each transaction, so helper
@@ -66,9 +90,17 @@ export async function tx<T>(
     blobs: transaction.objectStore('blobs'),
   }
 
-  const result = await fn(stores)
-  await transaction.done
-  return result
+  try {
+    const result = await fn(stores)
+    await transaction.done
+    return result
+  } catch (error) {
+    // A JavaScript exception after a successful request must abort too.
+    // Keep transaction callbacks limited to IDB work (no network/timers).
+    try { transaction.abort() } catch { /* Already finished or aborted. */ }
+    await transaction.done.catch(() => undefined)
+    throw error
+  }
 }
 
 export function nowIso() {

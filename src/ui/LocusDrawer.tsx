@@ -1,9 +1,12 @@
 import { LOCUS_COUNT, locusIdFromRouteIndex } from '../lib/loci'
 import type { LocusId, PalaceRecord } from '../lib/types'
+import type { SceneDefinition } from '../lib/sceneRegistry'
+import SceneRouteMap from './SceneRouteMap'
 
 export default function LocusDrawer(props: {
   open: boolean
   palace: PalaceRecord | null
+  scene?: SceneDefinition | null
   promptHudMode: 'off' | 'compact' | 'full'
   onPromptHudModeChange: (mode: 'off' | 'compact' | 'full') => void
   mapBusy: string | null
@@ -19,7 +22,7 @@ export default function LocusDrawer(props: {
   return (
     <div className="drawer-overlay">
       <div className="drawer-overlay__header">
-        <div className="drawer__title">点位（60）</div>
+        <div className="drawer__title">{props.scene?.title ?? '点位'}（{props.scene?.anchors.length ?? LOCUS_COUNT}）</div>
         <button className="btn" onClick={props.onClose}>
           关闭
         </button>
@@ -57,10 +60,10 @@ export default function LocusDrawer(props: {
           </p>
         ) : (
           <p className="hint" style={{ marginTop: 0 }}>
-            当前：内置 Dust2（GLB）
+            当前：{props.scene?.title ?? '内置 Dust2（GLB）'}
           </p>
         )}
-        <div className="row" style={{ marginTop: 8 }}>
+        {!props.palace?.mnemonicPlan ? <div className="row" style={{ marginTop: 8 }}>
           <label className="btn file">
             导入 GLB
             <input
@@ -86,7 +89,7 @@ export default function LocusDrawer(props: {
               清除
             </button>
           ) : null}
-        </div>
+        </div> : <p className="hint">此宫殿的内容已绑定经过选择的地标。更换场景请返回内容规划重新分配，避免地标与记忆错位。</p>}
         {props.mapBusy ? (
           <p className="hint" style={{ marginTop: 8 }}>
             {props.mapBusy}
@@ -97,11 +100,13 @@ export default function LocusDrawer(props: {
             {props.mapError}
           </p>
         ) : null}
-        <p className="hint">要求：GLB 内包含 60 个锚点节点，命名 L01..L60（建议 Blender Empty）。可选：用名为 COLLISION 的节点提供简化碰撞网格。</p>
+        {!props.palace?.mnemonicPlan && <p className="hint">传统自定义地图要求：GLB 内包含 60 个锚点节点，命名 L01..L60（建议 Blender Empty）。可选：COLLISION 简化碰撞网格。</p>}
       </div>
 
+      {props.scene?.attribution && <p className="hint">场景：<a href={props.scene.attribution.url} target="_blank" rel="noopener noreferrer">{props.scene.attribution.title} · {props.scene.attribution.creator}</a> · {props.scene.attribution.license}；本项目添加地标、路线和记忆线索。</p>}
+      {props.scene && <SceneRouteMap scene={props.scene} onSelect={props.onJumpToLocus} />}
       <div className="loci-grid">
-        {Array.from({ length: LOCUS_COUNT }, (_, i) => {
+        {Array.from({ length: props.scene?.anchors.length ?? LOCUS_COUNT }, (_, i) => {
           const routeIndex = i + 1
           const locusId = locusIdFromRouteIndex(routeIndex)
           const filled = props.filledLoci.has(locusId)
@@ -111,7 +116,7 @@ export default function LocusDrawer(props: {
               className={`locus-chip ${filled ? 'locus-chip--filled' : ''}`}
               onClick={() => props.onJumpToLocus(locusId)}
             >
-              {locusId} {filled ? '●' : '○'}
+              {locusId} {props.scene?.anchors[i]?.label} {filled ? '●' : '○'}
             </button>
           )
         })}

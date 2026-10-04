@@ -1,5 +1,5 @@
 import { Box3, Group, Raycaster, Vector3 } from 'three'
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
+import { MTLLoader, type MTLLoader as MTLLoaderTypes } from 'three/examples/jsm/loaders/MTLLoader.js'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 
 import { LOCUS_COUNT, locusIdFromRouteIndex } from '../lib/loci'
@@ -208,7 +208,7 @@ export async function loadDust2ObjWorld(): Promise<{ group: Group; loci: LocusPo
 
   const mtlLoader = new MTLLoader()
   mtlLoader.setPath(basePath)
-  const materials = await new Promise<any>((resolve, reject) => {
+  const materials = await new Promise<MTLLoaderTypes.MaterialCreator>((resolve, reject) => {
     mtlLoader.load('de_dust2.mtl', resolve, undefined, reject)
   })
   materials.preload()

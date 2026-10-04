@@ -2,6 +2,7 @@ import { Box3, DoubleSide, Group, Matrix4, Mesh, MeshBasicMaterial, Raycaster, V
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 import { LOCUS_COUNT, locusIdFromRouteIndex } from '../lib/loci'
+import { DUST2_SCENE } from '../lib/sceneRegistry'
 import type { LocusId } from '../lib/types'
 
 import type { LocusPose } from './dust2blockout'
@@ -250,14 +251,14 @@ async function loadDust2Glb(): Promise<GLTF> {
   })
 }
 
-function normalizeWorld(params: { root: Group; content: Group }) {
+function normalizeWorld(params: { root: Group; content: Group; targetSpan?: number }) {
   params.root.updateWorldMatrix(true, true)
   const bbox0 = new Box3().setFromObject(params.content)
   const size0 = new Vector3()
   bbox0.getSize(size0)
 
   const span = Math.max(size0.x, size0.z)
-  const targetSpan = 200
+  const targetSpan = params.targetSpan ?? 200
   const scale = span > 1e-6 ? targetSpan / span : 1
   params.root.scale.setScalar(scale)
 
@@ -275,7 +276,7 @@ function normalizeWorld(params: { root: Group; content: Group }) {
   params.root.updateWorldMatrix(true, true)
 }
 
-export async function loadDust2GlbWorld(): Promise<{ group: Group; loci: LocusPose[] }> {
+export async function loadDust2GlbWorld(options?: { curated?: boolean }): Promise<{ group: Group; loci: LocusPose[] }> {
   const gltf = await loadDust2Glb()
   const raw = gltf.scene as Group
   if (!raw) throw new Error('内置 Dust2 GLB 缺少 scene')
@@ -288,7 +289,7 @@ export async function loadDust2GlbWorld(): Promise<{ group: Group; loci: LocusPo
   root.name = 'dust2_glb_builtin'
   root.add(props)
 
-  normalizeWorld({ root, content: props })
+  normalizeWorld({ root, content: props, targetSpan: options?.curated ? DUST2_SCENE.worldTransform!.targetSpan : 200 })
 
   // Build a collision-only group by filtering out small prop meshes (best-effort).
   root.updateWorldMatrix(true, true)
@@ -315,7 +316,7 @@ export async function loadDust2GlbWorld(): Promise<{ group: Group; loci: LocusPo
     tmpBox.setFromObject(mesh)
     tmpBox.getSize(tmpSize)
     const meshMaxDim = Math.max(tmpSize.x, tmpSize.y, tmpSize.z)
-    if (meshMaxDim < minCollisionDim) return
+    if (!options?.curated && meshMaxDim < minCollisionDim) return
 
     const collider = new Mesh(mesh.geometry, collisionMat)
     collider.matrixAutoUpdate = false
@@ -330,6 +331,16 @@ export async function loadDust2GlbWorld(): Promise<{ group: Group; loci: LocusPo
     props.name = 'COLLISION'
   } else {
     root.add(collision)
+  }
+
+  // New mnemonic palaces use inspected ground-level approaches. Never infer them from
+  // a highest-surface ray or a guessed map UV orientation. Legacy 60-slot saves retain
+  // their historical route only when explicitly loaded without the curated adapter.
+  if (options?.curated) {
+    return { group: root, loci: DUST2_SCENE.anchors.map(a => ({
+      locusId: a.locusId, routeIndex: a.routeOrder, position: a.approach.position,
+      markerPosition: a.cueVolume.center, yaw: a.approach.yaw, pitch: a.approach.pitch,
+    })) }
   }
 
   // Generate loci from bbox + ground snapping (no embedded L01..L60 needed).

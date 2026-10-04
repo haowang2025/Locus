@@ -1,3 +1,33 @@
+# Locus · Dust2 玩家报点修订 v5
+
+本分支保存 2026-10-04 校验的 v5 项目：默认 `dust2-callouts` 场景、14 个玩家报点地标、42 个语义单元容量，以及离线创作台、导出器和兼容性测试。旧版场景保留独立版本，不自动迁移旧存档。
+
+## 直接使用
+
+下载 `releases/Locus-Dust2-Callouts-v5.html`，用浏览器打开。文件内含脚本、模型、贴图与参考图，无需 CDN。材料仅在本地处理；务必显式导出项目备份。文件 SHA-256：
+
+`1be03cc8a82c94b8698ebed62c311160f8f7637ac1d8fb8c0e04adc135c61f6d`
+
+## 从仓库根目录构建
+
+```sh
+npm ci --ignore-scripts
+npm test
+npm run lint
+npm run build
+node --import ./node_modules/tsx/dist/loader.mjs tools/buildOfflineStudio.ts ./releases/Locus-Dust2-Callouts-v5.html
+```
+
+详见 [离线交付说明](docs/OFFLINE_DELIVERY.md)、[v5 兼容性与复现](docs/DUST2_CALLOUT_COMPATIBILITY.md) 与 [玩家地标说明](docs/dust2-v5-player-landmarks.md)。不提交 node_modules、临时诊断脚本的打包副本、凭据或本地构建目录。
+
+验证边界：自动测试、构建和 CPU 几何检查不等于真实浏览器/WebGL、file:// 存储下载、移动设备触控、性能或学习效果验收。Android 项目保留，但本次未构建 APK。下方是项目原始说明，60 点位描述属于历史模式。
+
+## 许可与资源
+
+代码沿用仓库 LICENSE。Dust2 GLB/纹理由 vrchris 创作，来源和 CC-BY-4.0 署名见下方原始说明；场景参考图是由该模型生成的诊断视图，报点、路线与呈现有修改。第三方 React/Three.js 等依赖许可保留在离线成品中。
+
+---
+
 # 记忆宫殿 MVP（离线 Android）
 
 React + Three.js + IndexedDB，本地离线；使用 Capacitor 打包成可安装 Android App。

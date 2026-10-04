@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { createPalace, deletePalace, getBlobs, getCards, listPalaces } from '../lib/db'
 import { importMpFileAsNewPalace } from '../lib/backupImport'
 import { buildMpFileV1 } from '../lib/mpalace'
+import { listSceneDefinitions } from '../lib/sceneRegistry'
 import { LOCUS_COUNT } from '../lib/loci'
 import { exportFile } from '../lib/exportFile'
 import { computePalaceReviewStats, type PalaceReviewStats } from '../lib/review'
@@ -116,7 +117,7 @@ export default function HomePage() {
     setError(null)
     try {
       const cards = await getCards(palace.id)
-      const blobIds = Array.from(new Set(cards.flatMap((c) => (c.modelId ? [...c.imageIds, c.modelId] : c.imageIds))))
+      const blobIds = Array.from(new Set([...cards.flatMap((c) => (c.modelId ? [...c.imageIds, c.modelId] : c.imageIds)), ...(palace.customMap ? [palace.customMap.blobId] : []), ...(palace.unassignedAttachments ?? []).map(item => item.blobId)]))
       const blobs = await getBlobs(blobIds)
       const { fileName, blob } = await buildMpFileV1({ palace, cards, blobs })
       await exportFile({ fileName, blob, dialogTitle: '导出 .mpalace' })
@@ -189,8 +190,8 @@ export default function HomePage() {
             <section className="cardbox" key={p.id}>
               <h2 className="cardbox__title">{p.title}</h2>
               <p className="hint" style={{ marginTop: 0 }}>
-                模板：{templateLabel(p.templateId)} · 卡片：{filled}/{LOCUS_COUNT} · 今日待复习：{dueCount} · 掌握率：{masteryLabel} · 上次复习：{lastReviewed}
-                {p.customMap ? ` · 地图：${p.customMap.fileName}` : ' · 地图：内置'}
+                场景：{p.mnemonicPlan ? listSceneDefinitions().find(scene => scene.id === p.mnemonicPlan!.sceneId)?.title ?? p.mnemonicPlan.sceneId : templateLabel(p.templateId)} · {p.mnemonicPlan ? `地标：${filled} · 含义单元：${p.mnemonicPlan.units.length}` : `卡片：${filled}/${LOCUS_COUNT}`} · 今日待复习{p.mnemonicPlan ? '单元' : '卡片'}：{dueCount} · 自评记住比例：{masteryLabel} · 上次复习：{lastReviewed}
+                {p.customMap && !p.mnemonicPlan ? ` · 地图：${p.customMap.fileName}` : ''}
               </p>
               <div className="row">
                 <Link className="btn primary" to={`/palace/${p.id}/review`} aria-disabled={busy !== null}>

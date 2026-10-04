@@ -1,0 +1,631 @@
+{
+  "schemaVersion": 1,
+  "sceneId": "dust2-callouts",
+  "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+  "title": "Dust2 · 玩家地标路线",
+  "coordinateConvention": "Three.js Y-up; Blender conversion (x,-z,y)",
+  "generation": {
+    "method": "blender-geometry-inspection",
+    "tool": "Blender 4.3.2 / Cycles",
+    "sourceGeometrySha256": "92da5929670931087cebbb7493eceedfd38f38af9f5e85cf1761e90ff39f5960",
+    "browserVerified": false,
+    "lighting": "Diagnostic studio lighting and camera-side fill reveal original enclosed geometry; not a browser pixel match.",
+    "notes": [
+      "经典低模Dust2布局，非现代CS2视觉地图；原模型几何不变。",
+      "14处点位采用玩家区域名＋原模型具体物件；英文与中文别名随语义包携带。",
+      "新的dust2-callouts场景ID保留旧dust2/v4存档，L01等序号不可跨场景重映射。",
+      "青框是允许线索体积，不属于地图道具；俯视路线通过真实胶囊控制器连续回放。",
+      "Blender参考图与CPU检查不代表浏览器、移动端或视觉模型验收。"
+    ]
+  },
+  "overview": {
+    "id": "dust2-callouts-overview",
+    "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/overview.jpg",
+    "mimeType": "image/jpeg",
+    "sha256": "22d78575b5756398308cbd0c2e979638d607a95e3c623a84e5afe60da48a8b64",
+    "byteLength": 221440,
+    "width": 1200,
+    "height": 1200,
+    "projection": {
+      "kind": "orthographic",
+      "horizontalSpanMeters": 115,
+      "verticalSpanMeters": 115
+    }
+  },
+  "anchors": [
+    {
+      "id": "dust2v5-t-spawn-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-t-spawn.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "d3926464c5c9cc45df435f63815a0863796a7598d67bcb8213d8fce74520a6bd",
+      "byteLength": 170405,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-t-spawn",
+      "label": "匪家·石坡侧门",
+      "eye": {
+        "x": 9.5,
+        "y": 5.236457831325347,
+        "z": 35.5
+      },
+      "lookAt": {
+        "x": 12.95322,
+        "y": 5.22847903614459,
+        "z": 35.058
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "匪家通往A门一侧的石坡，旁边是墙内嵌的封闭拱形木门；木门不是通行出口。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-t-spawn-cue",
+        "center": {
+          "x": 12.1,
+          "y": 5.736457831325347,
+          "z": 33.8
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-long-doors-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-long-doors.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "8233588daac78cbed1372d626b33e77741a313fb8413e43488825e61de85c6cc",
+      "byteLength": 165528,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-long-doors",
+      "label": "A门·红A双扇木门",
+      "eye": {
+        "x": 18.6,
+        "y": 5.236457831325353,
+        "z": 20.1
+      },
+      "lookAt": {
+        "x": 17.009592078502013,
+        "y": 5.295479036144592,
+        "z": 15.977537593911844
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "A门通道入口，双扇木门中一扇带红色A标识，门叶中间留出可穿过的通道。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-long-doors-cue",
+        "center": {
+          "x": 16.752277225007738,
+          "y": 6.1364578313253535,
+          "z": 17.336683053507095
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-a-pit-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-a-pit.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "31538f10cae03986f79074d0a1f6343798c1219db1a9bcc8f781b90b3f176fda",
+      "byteLength": 150888,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-a-pit",
+      "label": "A坑·低墙拱门",
+      "eye": {
+        "x": 32.5,
+        "y": 1.6220000000000534,
+        "z": 17.5
+      },
+      "lookAt": {
+        "x": 32.942,
+        "y": 1.584720000000014,
+        "z": 20.828419
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "A大入口旁低于主路的坑底，尽端石墙内是一扇宽拱形封闭木门。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-a-pit-cue",
+        "center": {
+          "x": 34.2,
+          "y": 0.9720000000000533,
+          "z": 20.1
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-a-long-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-a-long.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "d6062de37029de680f55b841d3d8d0f4efb20e5bf1b8d986d21a213cf98fa0aa",
+      "byteLength": 135454,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-a-long",
+      "label": "A大·墙上红A箭头",
+      "eye": {
+        "x": 31.5,
+        "y": 5.236457831325366,
+        "z": -6.6
+      },
+      "lookAt": {
+        "x": 35.76650192113889,
+        "y": 7.285679036144595,
+        "z": -7.065890473489894
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "A大长路侧墙的红色A方向箭头，沿这条长路可前往A包点。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-a-long-cue",
+        "center": {
+          "x": 34.6904335428419,
+          "y": 5.736457831325366,
+          "z": -8.31788643649959
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-a-site-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-a-site.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "354b45983d7fcc98651acce0af37f3767739f084ec3ac89477ac6a3fe6f95b7b",
+      "byteLength": 127143,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-a-site",
+      "label": "A包点·叠层绿箱",
+      "eye": {
+        "x": 29,
+        "y": 7.043686746988026,
+        "z": -28.2
+      },
+      "lookAt": {
+        "x": 26.943577151145355,
+        "y": 6.808358554216887,
+        "z": -24.003694320589467
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "A包点高台上的叠层绿色箱组，附近地面有红色X安包标记；观看点位于台上。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-a-site-cue",
+        "center": {
+          "x": 28.775296735174443,
+          "y": 7.543686746988026,
+          "z": -24.583439694574867
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-a-short-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-a-short.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "be076cd63df8bae3fbbdf45bc4179601f4f85dbb5933964890dc558b303fdb09",
+      "byteLength": 178032,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-a-short",
+      "label": "A小·转角木箱",
+      "eye": {
+        "x": 11.5,
+        "y": 5.2364578313253665,
+        "z": -8.9
+      },
+      "lookAt": {
+        "x": 14.671375004370349,
+        "y": 4.5224790361445955,
+        "z": -6.89276177348753
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "A小拐角处的单个木箱，位于中路上方的小道一侧；不是A大入口石坡。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-a-short-cue",
+        "center": {
+          "x": 14.589903862962883,
+          "y": 4.586457831325366,
+          "z": -8.57985297495204
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-xbox-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-xbox.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "4d6617803c8a6e0bc36108deabd277e25b2f27c50b5a7ac4918e5ec83329ea9b",
+      "byteLength": 184322,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-xbox",
+      "label": "中路·Xbox木箱",
+      "eye": {
+        "x": -1,
+        "y": 3.8298313253012566,
+        "z": 1
+      },
+      "lookAt": {
+        "x": -0.21945379473439852,
+        "y": 2.3869721445783267,
+        "z": -4.039710384250027
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "中路斜坡尽端、靠A小一侧的X形斜撑木箱；中门双扇门在箱后，B下出口位于左侧石拱口。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-xbox-cue",
+        "center": {
+          "x": -1.701314595132302,
+          "y": 3.1798313253012562,
+          "z": -1.8210207086539467
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-mid-doors-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-mid-doors.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "7fb29bd77733d464ab4e21e5bd0bb799ea55bb263dcec50c1920767e98eaab5b",
+      "byteLength": 174947,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-mid-doors",
+      "label": "中门·双扇木门",
+      "eye": {
+        "x": -3,
+        "y": 2.8268192771084966,
+        "z": -4.4
+      },
+      "lookAt": {
+        "x": -1.0764387180263983,
+        "y": 2.929973012048209,
+        "z": -8.923665042509784
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "中路底端可穿行的双扇木门，门板留出中央缝隙，穿过后进入警家侧中路。与B门和B点后墙封闭木门分开。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-mid-doors-cue",
+        "center": {
+          "x": -0.7247643001015323,
+          "y": 3.726819277108497,
+          "z": -6.99871170196071
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-ct-spawn-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-ct-spawn.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "69bd286b5da3cd582f108baa6590af55b05a8aebfd9b939800a1dae74c52d9c4",
+      "byteLength": 168171,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-ct-spawn",
+      "label": "警家·拱道旁木箱",
+      "eye": {
+        "x": 6.6,
+        "y": 2.826819277108503,
+        "z": -18.1
+      },
+      "lookAt": {
+        "x": 6.053999999999999,
+        "y": 2.4189730120482107,
+        "z": -21.966
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "警家连接通道旁的矮木箱，处在A台下方通往中门警侧的低层通路。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-ct-spawn-cue",
+        "center": {
+          "x": 4.5,
+          "y": 3.326819277108503,
+          "z": -21.3
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-b-doors-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-b-doors.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "8f30c6717129be860fc08b0cefd7545333026dbc6f62a5ae869662c798f9a20d",
+      "byteLength": 163968,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-b-doors",
+      "label": "B门·红B双扇门",
+      "eye": {
+        "x": -15,
+        "y": 5.0155742971888255,
+        "z": -21
+      },
+      "lookAt": {
+        "x": -18.512467859578237,
+        "y": 5.212696517269094,
+        "z": -20.641061803147792
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "B外通往B包点的实际可穿行双扇门，右门板上有红色圆圈B，门扇中间打开通道。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-b-doors-cue",
+        "center": {
+          "x": -17.16665792145475,
+          "y": 5.5155742971888255,
+          "z": -20.022455396722286
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-b-site-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-b-site.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "71eaa56d61ee0fb37bf7c4975c96cc74669487c54c8937a819ee02ad94b0565c",
+      "byteLength": 168284,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-b-site",
+      "label": "B包点·警示绿箱",
+      "eye": {
+        "x": -23.058909221051696,
+        "y": 5.236457831325373,
+        "z": -22.20149813999054
+      },
+      "lookAt": {
+        "x": -24.81886435833843,
+        "y": 4.744479036144597,
+        "z": -26.12745492568786
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "B包点内带黑黄警示条的绿箱组，围着红色B点地面标记，后方有封闭的宽拱木门。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-b-site-cue",
+        "center": {
+          "x": -25.157170608993972,
+          "y": 4.586457831325372,
+          "z": -24.213288175722543
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-upper-tunnels-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-upper-tunnels.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "cee01cd38fa7c6053033f4fea8059495264a8f423284d211f108fa950aa09082",
+      "byteLength": 179105,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-upper-tunnels",
+      "label": "B洞内·B箭头拱口",
+      "eye": {
+        "x": -29,
+        "y": 5.838867469879581,
+        "z": -2
+      },
+      "lookAt": {
+        "x": -32.25151344443227,
+        "y": 5.58405894216869,
+        "z": -6.718458001299286
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "B洞上层室内的雕纹石拱口，拱内左墙有红色 B→ 指向标，旁边为斜撑木箱；洞道通向B包点。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-upper-tunnels-cue",
+        "center": {
+          "x": -31.458556324739497,
+          "y": 5.188867469879581,
+          "z": -3.550967697304948
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-lower-tunnels-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-lower-tunnels.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "766c2ea4379984ad4803898df45f0391516aafa0bc3d678dd86c8858a542daaa",
+      "byteLength": 179869,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-lower-tunnels",
+      "label": "B下·墙边木箱",
+      "eye": {
+        "x": -14.3,
+        "y": 3.128024096385606,
+        "z": -5.5
+      },
+      "lookAt": {
+        "x": -10.943387583666668,
+        "y": 2.4274087650602576,
+        "z": -4.44769584872323
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "B洞下层通向中路的低顶石廊，贴墙木箱带清晰X形斜撑，木箱旁保留可通行走道；地面低于上层B洞。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-lower-tunnels-cue",
+        "center": {
+          "x": -11.228109937179497,
+          "y": 2.478024096385606,
+          "z": -5.962051341243192
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    },
+    {
+      "id": "dust2v5-outside-tunnels-view",
+      "path": "scene-context/dust2-callouts/dust2-vrchris-08f7ab9c-v5/dust2v5-outside-tunnels.jpg",
+      "mimeType": "image/jpeg",
+      "sha256": "0ff2ebf7ed0707cd859f3353f901743d83848f831a87822baee1f0102e198433",
+      "byteLength": 183472,
+      "width": 960,
+      "height": 540,
+      "anchorId": "dust2v5-outside-tunnels",
+      "label": "B洞外·禁入木门",
+      "eye": {
+        "x": -25.36864415489403,
+        "y": 5.236457831325357,
+        "z": 13.795056905018827
+      },
+      "lookAt": {
+        "x": -20.9138066869375,
+        "y": 5.072649036144592,
+        "z": 13.304071125290879
+      },
+      "projection": {
+        "kind": "perspective",
+        "verticalFovDeg": 70,
+        "aspectRatio": 1.7777777777777777
+      },
+      "visibleFeatures": [
+        "B洞外侧院落的封闭双扇拱形木门，左门板写有 STAY OUT。它是B洞外的辨识地标，实际进洞入口在院落北侧，不把这扇装饰门当作洞口。"
+      ],
+      "cueVolume": {
+        "id": "dust2v5-outside-tunnels-cue",
+        "center": {
+          "x": -22.14293725745193,
+          "y": 4.936457831325356,
+          "z": 11.734762020349532
+        },
+        "size": {
+          "x": 1.2,
+          "y": 1.3,
+          "z": 1.1
+        }
+      }
+    }
+  ],
+  "attribution": {
+    "title": "de_dust2 - CS map",
+    "creator": "vrchris",
+    "url": "https://sketchfab.com/3d-models/de-dust2-cs-map-056008d59eb849a29c0ab6884c0c3d87",
+    "license": "CC-BY-4.0"
+  }
+}

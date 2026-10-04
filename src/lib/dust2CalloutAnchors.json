@@ -1,0 +1,1871 @@
+[
+  {
+    "id": "dust2v5-t-spawn",
+    "locusId": "L01",
+    "label": "匪家·石坡侧门",
+    "routeOrder": 1,
+    "zone": "匪家",
+    "position": {
+      "x": 13.253,
+      "y": 5.05,
+      "z": 35.5
+    },
+    "calloutAliases": [
+      "T家",
+      "匪家",
+      "T Spawn"
+    ],
+    "playerCallout": {
+      "regionZh": "匪家",
+      "regionEn": "T Spawn",
+      "aliases": [
+        "T家",
+        "匪家",
+        "T Spawn"
+      ],
+      "landmarkZh": "石坡侧门",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "匪家通往A门一侧的石坡，旁边是墙内嵌的封闭拱形木门；木门不是通行出口。",
+      "shape": "匪家通往A门一侧的石坡，旁边是墙内嵌的封闭拱形木门；木门不是通行出口。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "匪家通往A门一侧的石坡，旁边是墙内嵌的封闭拱形木门；木门不是通行出口。"
+      ],
+      "focusPoint": {
+        "x": 13.253,
+        "y": 5.05,
+        "z": 35.5
+      },
+      "framingBounds": {
+        "min": {
+          "x": 13.253,
+          "y": 3.61445,
+          "z": 33.7349
+        },
+        "max": {
+          "x": 13.253,
+          "y": 6.62655,
+          "z": 37.34945
+        },
+        "evidence": "Original normalized GLB material_7 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "匪家",
+      "T Spawn",
+      "T家",
+      "匪家",
+      "T Spawn"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": 9.5,
+        "y": 3.636457831325347,
+        "z": 35.5
+      },
+      "eye": {
+        "x": 9.5,
+        "y": 5.236457831325347,
+        "z": 35.5
+      },
+      "lookAt": {
+        "x": 12.95322,
+        "y": 5.22847903614459,
+        "z": 35.058
+      },
+      "yaw": -1.4434920495128676,
+      "pitch": -0.002291836287443679
+    },
+    "cueVolume": {
+      "id": "dust2v5-t-spawn-cue",
+      "center": {
+        "x": 12.1,
+        "y": 5.736457831325347,
+        "z": 33.8
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-long-doors"
+    ],
+    "relativeObjects": [
+      {
+        "name": "T Spawn",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-long-doors",
+    "locusId": "L02",
+    "label": "A门·红A双扇木门",
+    "routeOrder": 2,
+    "zone": "A门",
+    "position": {
+      "x": 17.1,
+      "y": 5,
+      "z": 15.5
+    },
+    "calloutAliases": [
+      "A门",
+      "Long Doors"
+    ],
+    "playerCallout": {
+      "regionZh": "A门",
+      "regionEn": "Long Doors",
+      "aliases": [
+        "A门",
+        "Long Doors"
+      ],
+      "landmarkZh": "红A双扇木门",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "A门通道入口，双扇木门中一扇带红色A标识，门叶中间留出可穿过的通道。",
+      "shape": "A门通道入口，双扇木门中一扇带红色A标识，门叶中间留出可穿过的通道。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "A门通道入口，双扇木门中一扇带红色A标识，门叶中间留出可穿过的通道。"
+      ],
+      "focusPoint": {
+        "x": 17.1,
+        "y": 5,
+        "z": 15.5
+      },
+      "framingBounds": {
+        "min": {
+          "x": 16.265,
+          "y": 3.61445,
+          "z": 14.8344
+        },
+        "max": {
+          "x": 19.8795,
+          "y": 6.5981,
+          "z": 16.49105
+        },
+        "evidence": "Original normalized GLB material_29 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "A门",
+      "Long Doors",
+      "A门",
+      "Long Doors"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": 18.6,
+        "y": 3.6364578313253535,
+        "z": 20.1
+      },
+      "eye": {
+        "x": 18.6,
+        "y": 5.236457831325353,
+        "z": 20.1
+      },
+      "lookAt": {
+        "x": 17.009592078502013,
+        "y": 5.295479036144592,
+        "z": 15.977537593911844
+      },
+      "yaw": 0.3681973434203615,
+      "pitch": 0.013356627142422833
+    },
+    "cueVolume": {
+      "id": "dust2v5-long-doors-cue",
+      "center": {
+        "x": 16.752277225007738,
+        "y": 6.1364578313253535,
+        "z": 17.336683053507095
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-t-spawn",
+      "dust2v5-a-pit"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Long Doors",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-a-pit",
+    "locusId": "L03",
+    "label": "A坑·低墙拱门",
+    "routeOrder": 3,
+    "zone": "A坑",
+    "position": {
+      "x": 32.5,
+      "y": 1.8,
+      "z": 21.08435
+    },
+    "calloutAliases": [
+      "A坑",
+      "大坑",
+      "Pit"
+    ],
+    "playerCallout": {
+      "regionZh": "A坑",
+      "regionEn": "Pit",
+      "aliases": [
+        "A坑",
+        "大坑",
+        "Pit"
+      ],
+      "landmarkZh": "低墙拱门",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "A大入口旁低于主路的坑底，尽端石墙内是一扇宽拱形封闭木门。",
+      "shape": "A大入口旁低于主路的坑底，尽端石墙内是一扇宽拱形封闭木门。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "A大入口旁低于主路的坑底，尽端石墙内是一扇宽拱形封闭木门。"
+      ],
+      "focusPoint": {
+        "x": 32.5,
+        "y": 1.8,
+        "z": 21.08435
+      },
+      "framingBounds": {
+        "min": {
+          "x": 30.1205,
+          "y": 0,
+          "z": 21.08435
+        },
+        "max": {
+          "x": 34.93975,
+          "y": 3.61445,
+          "z": 21.08435
+        },
+        "evidence": "Original normalized GLB material_7 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "A坑",
+      "Pit",
+      "A坑",
+      "大坑",
+      "Pit"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": 32.5,
+        "y": 0.02200000000005329,
+        "z": 17.5
+      },
+      "eye": {
+        "x": 32.5,
+        "y": 1.6220000000000534,
+        "z": 17.5
+      },
+      "lookAt": {
+        "x": 32.942,
+        "y": 1.584720000000014,
+        "z": 20.828419
+      },
+      "yaw": -3.009569321390877,
+      "pitch": -0.011102585033023808
+    },
+    "cueVolume": {
+      "id": "dust2v5-a-pit-cue",
+      "center": {
+        "x": 34.2,
+        "y": 0.9720000000000533,
+        "z": 20.1
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-long-doors",
+      "dust2v5-a-long"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Pit",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-a-long",
+    "locusId": "L04",
+    "label": "A大·墙上红A箭头",
+    "routeOrder": 4,
+    "zone": "A大",
+    "position": {
+      "x": 36.14458,
+      "y": 7.83,
+      "z": -6.626
+    },
+    "calloutAliases": [
+      "A大",
+      "A大路",
+      "Long A"
+    ],
+    "playerCallout": {
+      "regionZh": "A大",
+      "regionEn": "Long A",
+      "aliases": [
+        "A大",
+        "A大路",
+        "Long A"
+      ],
+      "landmarkZh": "墙上红A箭头",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "A大长路侧墙的红色A方向箭头，沿这条长路可前往A包点。",
+      "shape": "A大长路侧墙的红色A方向箭头，沿这条长路可前往A包点。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "A大长路侧墙的红色A方向箭头，沿这条长路可前往A包点。"
+      ],
+      "focusPoint": {
+        "x": 36.14458,
+        "y": 7.83,
+        "z": -6.626
+      },
+      "framingBounds": {
+        "min": {
+          "x": 36.14458,
+          "y": 6.02409,
+          "z": -7.83128
+        },
+        "max": {
+          "x": 36.14458,
+          "y": 9.63855,
+          "z": -5.42164
+        },
+        "evidence": "Original normalized GLB material_16 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "A大",
+      "Long A",
+      "A大",
+      "A大路",
+      "Long A"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": 31.5,
+        "y": 3.6364578313253655,
+        "z": -6.6
+      },
+      "eye": {
+        "x": 31.5,
+        "y": 5.236457831325366,
+        "z": -6.6
+      },
+      "lookAt": {
+        "x": 35.76650192113889,
+        "y": 7.285679036144595,
+        "z": -7.065890473489894
+      },
+      "yaw": -1.4620299763784856,
+      "pitch": 0.4454588821234455
+    },
+    "cueVolume": {
+      "id": "dust2v5-a-long-cue",
+      "center": {
+        "x": 34.6904335428419,
+        "y": 5.736457831325366,
+        "z": -8.31788643649959
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-a-pit",
+      "dust2v5-a-site"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Long A",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-a-site",
+    "locusId": "L05",
+    "label": "A包点·叠层绿箱",
+    "routeOrder": 5,
+    "zone": "A包点",
+    "position": {
+      "x": 26.3,
+      "y": 6.55,
+      "z": -23.8
+    },
+    "calloutAliases": [
+      "A点",
+      "A台",
+      "A Site"
+    ],
+    "playerCallout": {
+      "regionZh": "A包点",
+      "regionEn": "A Site",
+      "aliases": [
+        "A点",
+        "A台",
+        "A Site"
+      ],
+      "landmarkZh": "叠层绿箱",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "A包点高台上的叠层绿色箱组，附近地面有红色X安包标记；观看点位于台上。",
+      "shape": "A包点高台上的叠层绿色箱组，附近地面有红色X安包标记；观看点位于台上。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "A包点高台上的叠层绿色箱组，附近地面有红色X安包标记；观看点位于台上。"
+      ],
+      "focusPoint": {
+        "x": 26.3,
+        "y": 6.55,
+        "z": -23.8
+      },
+      "framingBounds": {
+        "min": {
+          "x": 25.6024,
+          "y": 5.42175,
+          "z": -25.2823
+        },
+        "max": {
+          "x": 27.0896,
+          "y": 7.83135,
+          "z": -22.59035
+        },
+        "evidence": "Original normalized GLB material_31 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "A包点",
+      "A Site",
+      "A点",
+      "A台",
+      "A Site"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": 29,
+        "y": 5.443686746988027,
+        "z": -28.2
+      },
+      "eye": {
+        "x": 29,
+        "y": 7.043686746988026,
+        "z": -28.2
+      },
+      "lookAt": {
+        "x": 26.943577151145355,
+        "y": 6.808358554216887,
+        "z": -24.003694320589467
+      },
+      "yaw": 2.6859322140500006,
+      "pitch": -0.050315552576085144
+    },
+    "cueVolume": {
+      "id": "dust2v5-a-site-cue",
+      "center": {
+        "x": 28.775296735174443,
+        "y": 7.543686746988026,
+        "z": -24.583439694574867
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-a-long",
+      "dust2v5-a-short"
+    ],
+    "relativeObjects": [
+      {
+        "name": "A Site",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-a-short",
+    "locusId": "L06",
+    "label": "A小·转角木箱",
+    "routeOrder": 6,
+    "zone": "A小",
+    "position": {
+      "x": 14.7,
+      "y": 4.5,
+      "z": -6.3
+    },
+    "calloutAliases": [
+      "A小",
+      "小道",
+      "Short A",
+      "Catwalk"
+    ],
+    "playerCallout": {
+      "regionZh": "A小",
+      "regionEn": "Short A",
+      "aliases": [
+        "A小",
+        "小道",
+        "Short A",
+        "Catwalk"
+      ],
+      "landmarkZh": "转角木箱",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "A小拐角处的单个木箱，位于中路上方的小道一侧；不是A大入口石坡。",
+      "shape": "A小拐角处的单个木箱，位于中路上方的小道一侧；不是A大入口石坡。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "A小拐角处的单个木箱，位于中路上方的小道一侧；不是A大入口石坡。"
+      ],
+      "focusPoint": {
+        "x": 14.7,
+        "y": 4.5,
+        "z": -6.3
+      },
+      "framingBounds": {
+        "min": {
+          "x": 13.8554,
+          "y": 3.61445,
+          "z": -7.2289
+        },
+        "max": {
+          "x": 15.66265,
+          "y": 5.42175,
+          "z": -5.42165
+        },
+        "evidence": "Original normalized GLB material_12 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "A小",
+      "Short A",
+      "A小",
+      "小道",
+      "Short A",
+      "Catwalk"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": 11.5,
+        "y": 3.6364578313253664,
+        "z": -8.9
+      },
+      "eye": {
+        "x": 11.5,
+        "y": 5.2364578313253665,
+        "z": -8.9
+      },
+      "lookAt": {
+        "x": 14.671375004370349,
+        "y": 4.5224790361445955,
+        "z": -6.89276177348753
+      },
+      "yaw": -2.135073263647336,
+      "pitch": -0.18798512119043326
+    },
+    "cueVolume": {
+      "id": "dust2v5-a-short-cue",
+      "center": {
+        "x": 14.589903862962883,
+        "y": 4.586457831325366,
+        "z": -8.57985297495204
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-a-site",
+      "dust2v5-xbox"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Short A",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-xbox",
+    "locusId": "L07",
+    "label": "中路·Xbox木箱",
+    "routeOrder": 7,
+    "zone": "中路T侧",
+    "position": {
+      "x": 0.3012,
+      "y": 2.1084,
+      "z": -4.81925
+    },
+    "calloutAliases": [
+      "中路",
+      "中箱",
+      "Xbox",
+      "T Mid"
+    ],
+    "playerCallout": {
+      "regionZh": "中路T侧",
+      "regionEn": "Mid / Xbox",
+      "aliases": [
+        "中路",
+        "中箱",
+        "Xbox",
+        "T Mid"
+      ],
+      "landmarkZh": "Xbox木箱",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "中路斜坡尽端、靠A小一侧的X形斜撑木箱；中门双扇门在箱后，B下出口位于左侧石拱口。",
+      "shape": "中路斜坡尽端、靠A小一侧的X形斜撑木箱；中门双扇门在箱后，B下出口位于左侧石拱口。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "中路斜坡尽端、靠A小一侧的X形斜撑木箱；中门双扇门在箱后，B下出口位于左侧石拱口。"
+      ],
+      "focusPoint": {
+        "x": 0.3012,
+        "y": 2.1084,
+        "z": -4.81925
+      },
+      "framingBounds": {
+        "min": {
+          "x": -0.6024,
+          "y": 1.2048,
+          "z": -6.62655
+        },
+        "max": {
+          "x": 1.2048,
+          "y": 3.012,
+          "z": -4.81925
+        },
+        "evidence": "Original normalized GLB material_12 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "中路T侧",
+      "Mid / Xbox",
+      "中路",
+      "中箱",
+      "Xbox",
+      "T Mid"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": -1,
+        "y": 2.2298313253012565,
+        "z": 1
+      },
+      "eye": {
+        "x": -1,
+        "y": 3.8298313253012566,
+        "z": 1
+      },
+      "lookAt": {
+        "x": -0.21945379473439852,
+        "y": 2.3869721445783267,
+        "z": -4.039710384250027
+      },
+      "yaw": -0.15365831130503796,
+      "pitch": -0.2757188103556827
+    },
+    "cueVolume": {
+      "id": "dust2v5-xbox-cue",
+      "center": {
+        "x": -1.701314595132302,
+        "y": 3.1798313253012562,
+        "z": -1.8210207086539467
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-a-short",
+      "dust2v5-mid-doors"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Mid / Xbox",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-mid-doors",
+    "locusId": "L08",
+    "label": "中门·双扇木门",
+    "routeOrder": 8,
+    "zone": "中门",
+    "position": {
+      "x": -1.2,
+      "y": 2.65,
+      "z": -9.6
+    },
+    "calloutAliases": [
+      "中门",
+      "Mid Doors",
+      "Double Doors"
+    ],
+    "playerCallout": {
+      "regionZh": "中门",
+      "regionEn": "Mid Doors",
+      "aliases": [
+        "中门",
+        "Mid Doors",
+        "Double Doors"
+      ],
+      "landmarkZh": "双扇木门",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "中路底端可穿行的双扇木门，门板留出中央缝隙，穿过后进入警家侧中路。与B门和B点后墙封闭木门分开。",
+      "shape": "中路底端可穿行的双扇木门，门板留出中央缝隙，穿过后进入警家侧中路。与B门和B点后墙封闭木门分开。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "中路底端可穿行的双扇木门，门板留出中央缝隙，穿过后进入警家侧中路。与B门和B点后墙封闭木门分开。"
+      ],
+      "focusPoint": {
+        "x": -1.2,
+        "y": 2.65,
+        "z": -9.6
+      },
+      "framingBounds": {
+        "min": {
+          "x": -3.01205,
+          "y": 1.2048,
+          "z": -10.48565
+        },
+        "max": {
+          "x": 0.6024,
+          "y": 4.18845,
+          "z": -8.81025
+        },
+        "evidence": "Original normalized GLB material_7 / material_23 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "中门",
+      "Mid Doors",
+      "中门",
+      "Mid Doors",
+      "Double Doors"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": -3,
+        "y": 1.2268192771084967,
+        "z": -4.4
+      },
+      "eye": {
+        "x": -3,
+        "y": 2.8268192771084966,
+        "z": -4.4
+      },
+      "lookAt": {
+        "x": -1.0764387180263983,
+        "y": 2.929973012048209,
+        "z": -8.923665042509784
+      },
+      "yaw": -0.4020585533265298,
+      "pitch": 0.020981672387359193
+    },
+    "cueVolume": {
+      "id": "dust2v5-mid-doors-cue",
+      "center": {
+        "x": -0.7247643001015323,
+        "y": 3.726819277108497,
+        "z": -6.99871170196071
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-xbox",
+      "dust2v5-ct-spawn"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Mid Doors",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-ct-spawn",
+    "locusId": "L09",
+    "label": "警家·拱道旁木箱",
+    "routeOrder": 9,
+    "zone": "警家",
+    "position": {
+      "x": 6.6,
+      "y": 2.1,
+      "z": -22.2
+    },
+    "calloutAliases": [
+      "警家",
+      "CT家",
+      "CT Spawn"
+    ],
+    "playerCallout": {
+      "regionZh": "警家",
+      "regionEn": "CT Spawn",
+      "aliases": [
+        "警家",
+        "CT家",
+        "CT Spawn"
+      ],
+      "landmarkZh": "拱道旁木箱",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "警家连接通道旁的矮木箱，处在A台下方通往中门警侧的低层通路。",
+      "shape": "警家连接通道旁的矮木箱，处在A台下方通往中门警侧的低层通路。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "警家连接通道旁的矮木箱，处在A台下方通往中门警侧的低层通路。"
+      ],
+      "focusPoint": {
+        "x": 6.6,
+        "y": 2.1,
+        "z": -22.2
+      },
+      "framingBounds": {
+        "min": {
+          "x": 5.4217,
+          "y": 1.2048,
+          "z": -23.494
+        },
+        "max": {
+          "x": 7.83135,
+          "y": 3.012,
+          "z": -21.08435
+        },
+        "evidence": "Original normalized GLB material_12 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "警家",
+      "CT Spawn",
+      "警家",
+      "CT家",
+      "CT Spawn"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": 6.6,
+        "y": 1.226819277108503,
+        "z": -18.1
+      },
+      "eye": {
+        "x": 6.6,
+        "y": 2.826819277108503,
+        "z": -18.1
+      },
+      "lookAt": {
+        "x": 6.053999999999999,
+        "y": 2.4189730120482107,
+        "z": -21.966
+      },
+      "yaw": 0.140303315008881,
+      "pitch": -0.10408155800341172
+    },
+    "cueVolume": {
+      "id": "dust2v5-ct-spawn-cue",
+      "center": {
+        "x": 4.5,
+        "y": 3.326819277108503,
+        "z": -21.3
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-mid-doors",
+      "dust2v5-b-doors"
+    ],
+    "relativeObjects": [
+      {
+        "name": "CT Spawn",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-b-doors",
+    "locusId": "L10",
+    "label": "B门·红B双扇门",
+    "routeOrder": 10,
+    "zone": "B门",
+    "position": {
+      "x": -18.98532,
+      "y": 5.10628,
+      "z": -20.85841
+    },
+    "calloutAliases": [
+      "B门",
+      "B双门",
+      "B Doors"
+    ],
+    "playerCallout": {
+      "regionZh": "B门",
+      "regionEn": "B Doors",
+      "aliases": [
+        "B门",
+        "B双门",
+        "B Doors"
+      ],
+      "landmarkZh": "红B双扇门",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "B外通往B包点的实际可穿行双扇门，右门板上有红色圆圈B，门扇中间打开通道。",
+      "shape": "B外通往B包点的实际可穿行双扇门，右门板上有红色圆圈B，门扇中间打开通道。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "B外通往B包点的实际可穿行双扇门，右门板上有红色圆圈B，门扇中间打开通道。"
+      ],
+      "focusPoint": {
+        "x": -18.98532,
+        "y": 5.10628,
+        "z": -20.85841
+      },
+      "framingBounds": {
+        "min": {
+          "x": -19.3712368,
+          "y": 3.6144547,
+          "z": -21.6867275
+        },
+        "max": {
+          "x": -18.5993996,
+          "y": 6.5981054,
+          "z": -20.0300922
+        },
+        "evidence": "Original normalized GLB material_26 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "B门",
+      "B Doors",
+      "B门",
+      "B双门",
+      "B Doors"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": -15,
+        "y": 3.4155742971888254,
+        "z": -21
+      },
+      "eye": {
+        "x": -15,
+        "y": 5.0155742971888255,
+        "z": -21
+      },
+      "lookAt": {
+        "x": -18.512467859578237,
+        "y": 5.212696517269094,
+        "z": -20.641061803147792
+      },
+      "yaw": 1.6726325708518839,
+      "pitch": 0.05577206777400136
+    },
+    "cueVolume": {
+      "id": "dust2v5-b-doors-cue",
+      "center": {
+        "x": -17.16665792145475,
+        "y": 5.5155742971888255,
+        "z": -20.022455396722286
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-ct-spawn",
+      "dust2v5-b-site"
+    ],
+    "relativeObjects": [
+      {
+        "name": "B Doors",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-b-site",
+    "locusId": "L11",
+    "label": "B包点·警示绿箱",
+    "routeOrder": 11,
+    "zone": "B包点",
+    "position": {
+      "x": -24.7,
+      "y": 4.8,
+      "z": -26.8
+    },
+    "calloutAliases": [
+      "B点",
+      "B包点",
+      "B Site"
+    ],
+    "playerCallout": {
+      "regionZh": "B包点",
+      "regionEn": "B Site",
+      "aliases": [
+        "B点",
+        "B包点",
+        "B Site"
+      ],
+      "landmarkZh": "警示绿箱",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "B包点内带黑黄警示条的绿箱组，围着红色B点地面标记，后方有封闭的宽拱木门。",
+      "shape": "B包点内带黑黄警示条的绿箱组，围着红色B点地面标记，后方有封闭的宽拱木门。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "B包点内带黑黄警示条的绿箱组，围着红色B点地面标记，后方有封闭的宽拱木门。"
+      ],
+      "focusPoint": {
+        "x": -24.7,
+        "y": 4.8,
+        "z": -26.8
+      },
+      "framingBounds": {
+        "min": {
+          "x": -25.3012,
+          "y": 3.61445,
+          "z": -27.40965
+        },
+        "max": {
+          "x": -24.0964,
+          "y": 6.0241,
+          "z": -26.20475
+        },
+        "evidence": "Original normalized GLB material_31 / material_25 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "B包点",
+      "B Site",
+      "B点",
+      "B包点",
+      "B Site"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": -23.058909221051696,
+        "y": 3.636457831325372,
+        "z": -22.20149813999054
+      },
+      "eye": {
+        "x": -23.058909221051696,
+        "y": 5.236457831325373,
+        "z": -22.20149813999054
+      },
+      "lookAt": {
+        "x": -24.81886435833843,
+        "y": 4.744479036144597,
+        "z": -26.12745492568786
+      },
+      "yaw": 0.42142842759504084,
+      "pitch": -0.11385551988380176
+    },
+    "cueVolume": {
+      "id": "dust2v5-b-site-cue",
+      "center": {
+        "x": -25.157170608993972,
+        "y": 4.586457831325372,
+        "z": -24.213288175722543
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-b-doors",
+      "dust2v5-upper-tunnels"
+    ],
+    "relativeObjects": [
+      {
+        "name": "B Site",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-upper-tunnels",
+    "locusId": "L12",
+    "label": "B洞内·B箭头拱口",
+    "routeOrder": 12,
+    "zone": "B洞上层",
+    "position": {
+      "x": -32.53012,
+      "y": 5.72291,
+      "z": -7.83136
+    },
+    "calloutAliases": [
+      "B洞",
+      "B上",
+      "上层隧道",
+      "Upper Tunnels"
+    ],
+    "playerCallout": {
+      "regionZh": "B洞上层",
+      "regionEn": "Upper Tunnels",
+      "aliases": [
+        "B洞",
+        "B上",
+        "上层隧道",
+        "Upper Tunnels"
+      ],
+      "landmarkZh": "B箭头拱口",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "B洞上层室内的雕纹石拱口，拱内左墙有红色 B→ 指向标，旁边为斜撑木箱；洞道通向B包点。",
+      "shape": "B洞上层室内的雕纹石拱口，拱内左墙有红色 B→ 指向标，旁边为斜撑木箱；洞道通向B包点。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "B洞上层室内的雕纹石拱口，拱内左墙有红色 B→ 指向标，旁边为斜撑木箱；洞道通向B包点。"
+      ],
+      "focusPoint": {
+        "x": -32.53012,
+        "y": 5.72291,
+        "z": -7.83136
+      },
+      "framingBounds": {
+        "min": {
+          "x": -32.53012,
+          "y": 4.21691,
+          "z": -9.03618
+        },
+        "max": {
+          "x": -32.53012,
+          "y": 7.22891,
+          "z": -6.62654
+        },
+        "evidence": "Original normalized GLB material_27 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "B洞上层",
+      "Upper Tunnels",
+      "B洞",
+      "B上",
+      "上层隧道",
+      "Upper Tunnels"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": -29,
+        "y": 4.2388674698795805,
+        "z": -2
+      },
+      "eye": {
+        "x": -29,
+        "y": 5.838867469879581,
+        "z": -2
+      },
+      "lookAt": {
+        "x": -32.25151344443227,
+        "y": 5.58405894216869,
+        "z": -6.718458001299286
+      },
+      "yaw": 0.6033764607918028,
+      "pitch": -0.04443770355212996
+    },
+    "cueVolume": {
+      "id": "dust2v5-upper-tunnels-cue",
+      "center": {
+        "x": -31.458556324739497,
+        "y": 5.188867469879581,
+        "z": -3.550967697304948
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-b-site",
+      "dust2v5-lower-tunnels"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Upper Tunnels",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-lower-tunnels",
+    "locusId": "L13",
+    "label": "B下·墙边木箱",
+    "routeOrder": 13,
+    "zone": "B下",
+    "position": {
+      "x": -10.84335,
+      "y": 2.409625,
+      "z": -3.915625
+    },
+    "calloutAliases": [
+      "B下",
+      "B洞下层",
+      "下层隧道",
+      "Lower Tunnels"
+    ],
+    "playerCallout": {
+      "regionZh": "B下",
+      "regionEn": "Lower Tunnels",
+      "aliases": [
+        "B下",
+        "B洞下层",
+        "下层隧道",
+        "Lower Tunnels"
+      ],
+      "landmarkZh": "墙边木箱",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "B洞下层通向中路的低顶石廊，贴墙木箱带清晰X形斜撑，木箱旁保留可通行走道；地面低于上层B洞。",
+      "shape": "B洞下层通向中路的低顶石廊，贴墙木箱带清晰X形斜撑，木箱旁保留可通行走道；地面低于上层B洞。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "B洞下层通向中路的低顶石廊，贴墙木箱带清晰X形斜撑，木箱旁保留可通行走道；地面低于上层B洞。"
+      ],
+      "focusPoint": {
+        "x": -10.84335,
+        "y": 2.409625,
+        "z": -3.915625
+      },
+      "framingBounds": {
+        "min": {
+          "x": -10.84335,
+          "y": 1.506,
+          "z": -4.81925
+        },
+        "max": {
+          "x": -9.03615,
+          "y": 3.31325,
+          "z": -3.012
+        },
+        "evidence": "Original normalized GLB material_12 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "B下",
+      "Lower Tunnels",
+      "B下",
+      "B洞下层",
+      "下层隧道",
+      "Lower Tunnels"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": -14.3,
+        "y": 1.5280240963856062,
+        "z": -5.5
+      },
+      "eye": {
+        "x": -14.3,
+        "y": 3.128024096385606,
+        "z": -5.5
+      },
+      "lookAt": {
+        "x": -10.943387583666668,
+        "y": 2.4274087650602576,
+        "z": -4.44769584872323
+      },
+      "yaw": -1.8745936382715949,
+      "pitch": -0.19659616764649251
+    },
+    "cueVolume": {
+      "id": "dust2v5-lower-tunnels-cue",
+      "center": {
+        "x": -11.228109937179497,
+        "y": 2.478024096385606,
+        "z": -5.962051341243192
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-upper-tunnels",
+      "dust2v5-outside-tunnels"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Lower Tunnels",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  },
+  {
+    "id": "dust2v5-outside-tunnels",
+    "locusId": "L14",
+    "label": "B洞外·禁入木门",
+    "routeOrder": 14,
+    "zone": "B洞外",
+    "position": {
+      "x": -20.48195,
+      "y": 5.1205,
+      "z": 13.85545
+    },
+    "calloutAliases": [
+      "B洞外",
+      "匪家去B洞",
+      "Outside Tunnels"
+    ],
+    "playerCallout": {
+      "regionZh": "B洞外",
+      "regionEn": "Outside Tunnels",
+      "aliases": [
+        "B洞外",
+        "匪家去B洞",
+        "Outside Tunnels"
+      ],
+      "landmarkZh": "禁入木门",
+      "confidence": "geometry-and-classic-layout",
+      "evidence": "Original GLB material/component bounds; classic-map regional layout; physical-landmark suffix is descriptive, not a claimed canonical special callout."
+    },
+    "landmark": {
+      "description": "B洞外侧院落的封闭双扇拱形木门，左门板写有 STAY OUT。它是B洞外的辨识地标，实际进洞入口在院落北侧，不把这扇装饰门当作洞口。",
+      "shape": "B洞外侧院落的封闭双扇拱形木门，左门板写有 STAY OUT。它是B洞外的辨识地标，实际进洞入口在院落北侧，不把这扇装饰门当作洞口。",
+      "material": "原模型石墙、木箱、木门与绿箱",
+      "colors": [
+        "砂岩棕",
+        "木棕"
+      ],
+      "visibleFeatures": [
+        "B洞外侧院落的封闭双扇拱形木门，左门板写有 STAY OUT。它是B洞外的辨识地标，实际进洞入口在院落北侧，不把这扇装饰门当作洞口。"
+      ],
+      "focusPoint": {
+        "x": -20.48195,
+        "y": 5.1205,
+        "z": 13.85545
+      },
+      "framingBounds": {
+        "min": {
+          "x": -20.48195,
+          "y": 3.61445,
+          "z": 12.0482
+        },
+        "max": {
+          "x": -20.48195,
+          "y": 6.62655,
+          "z": 15.6627
+        },
+        "evidence": "Original normalized GLB material_23 / material_7 physical feature bounds."
+      }
+    },
+    "semanticTags": [
+      "B洞外",
+      "Outside Tunnels",
+      "B洞外",
+      "匪家去B洞",
+      "Outside Tunnels"
+    ],
+    "affordances": [
+      "在地标前线索区排列",
+      "在地标旁线索区环绕"
+    ],
+    "capacity": 3,
+    "approach": {
+      "position": {
+        "x": -25.36864415489403,
+        "y": 3.636457831325356,
+        "z": 13.795056905018827
+      },
+      "eye": {
+        "x": -25.36864415489403,
+        "y": 5.236457831325357,
+        "z": 13.795056905018827
+      },
+      "lookAt": {
+        "x": -20.9138066869375,
+        "y": 5.072649036144592,
+        "z": 13.304071125290879
+      },
+      "yaw": -1.4610252917417004,
+      "pitch": -0.036533413251794884
+    },
+    "cueVolume": {
+      "id": "dust2v5-outside-tunnels-cue",
+      "center": {
+        "x": -22.14293725745193,
+        "y": 4.936457831325356,
+        "z": 11.734762020349532
+      },
+      "size": {
+        "x": 1.2,
+        "y": 1.3,
+        "z": 1.1
+      },
+      "allowedRelations": [
+        "在线索区按顺序排列",
+        "在线索区环形环绕",
+        "在线索区被框住",
+        "在线索区周期起伏"
+      ],
+      "allowedRelationIds": [
+        "ordered-row",
+        "orbit",
+        "frame",
+        "rise"
+      ],
+      "maxObjects": 3
+    },
+    "neighbors": [
+      "dust2v5-lower-tunnels"
+    ],
+    "relativeObjects": [
+      {
+        "name": "Outside Tunnels",
+        "relation": "玩家区域名；点位后缀描述原模型中的具体物件"
+      }
+    ],
+    "verification": {
+      "method": "blender-raycast",
+      "reachable": true,
+      "visible": true,
+      "sceneVersion": "dust2-vrchris-08f7ab9c-v5",
+      "evidence": "Fresh recovery QA: original-model whole cue-volume triangle checks, 27/27 cue visibility rays, capsule stability, actual PortableWalker single-spawn 298.31m / 108s generated route and 107.69s packaged replay. Populated-cue sampled silhouette checks: no feature wholly covered, per-anchor maxima 0–3.36%. Browser/device acceptance not performed."
+    }
+  }
+]

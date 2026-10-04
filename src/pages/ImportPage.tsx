@@ -56,9 +56,9 @@ function parseCsv(text: string): Array<{ prompt: string; answer: string; note?: 
 
     if (hasPrompt || hasAnswer) {
       const normalized = withHeader.data.map((row) => ({
-        prompt: (row as any).prompt ?? (row as any).question ?? (row as any).q,
-        answer: (row as any).answer ?? (row as any).a,
-        note: (row as any).note,
+        prompt: row.prompt ?? row.question ?? row.q,
+        answer: row.answer ?? row.a,
+        note: row.note,
       }))
       return normalizeImportedRows(normalized)
     }
